@@ -228,7 +228,7 @@ class timeseries:
             # Raise error if cannot find datacom.dbs
             if not os.path.exists('./datacom.dbs'):
                 raise OSError('Could not find default database. \
-                Plot with other units or convert to mg/L first using the 
+                Plot with other units or convert to mg/L first using the \
                 convert_mgL method. See convert_mgL.__doc__ for more info.')
 
             self.convert_mgL()

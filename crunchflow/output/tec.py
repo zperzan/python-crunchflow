@@ -215,7 +215,8 @@ class tec:
         
         params:
             var [str]: variable to plot
-            times [list]: time steps to plot; defaults to all time steps
+            times [list]: time steps to plot, must be either components of 
+                self.times or self.output_times; defaults to all time steps
             plot_type [str]: whether to display an image ('image') or a 
                 contour-filled contour plot ('contourf')
             figsize [tuple]: figure size; default (12, 1.5 * # of timesteps)
@@ -237,6 +238,23 @@ class tec:
         if figsize is None:
             figsize = (12,1.8*len(times))
 
+        # Interpret whether times are in output_times or self.times
+        in_self_times=True
+        for time in times:
+            # Assume first that they are in self.times
+            if time not in self.times:
+                in_self_times=False
+                if self.output_times is None:
+                    raise ValueError("Could not find {} in self.times".format(time))
+                else:
+                    if time not in self.output_times:
+                        raise ValueError("Could not find {} in self.output_times".format(time))
+                    
+        # If times were given as components of self.output_times, convert 
+        # to self.times equivalent
+        if not in_self_times:
+            times = [self.times[self.output_times.index(t)] for t in times]
+    
         # Get column number of var to plot
         col_no = self.columns.index(var) + 3 
               
