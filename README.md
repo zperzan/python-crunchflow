@@ -11,7 +11,7 @@ pip install crunchflow
 ```
 
 ## Usage
-Functions and classes are well documented within each individual module file. Full documentation is coming soon.
+Full documentation can be found [here](https://readthedocs.org/projects/python-crunchflow/)
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
