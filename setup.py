@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="crunchflow", 
-    version="1.0.2",
+    version="1.0.3",
     author="Zach Perzan",
     author_email="zperzan@stanford.edu",
     description="Python toolbox for working with the CrunchFlow reactive transport model",
