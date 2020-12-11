@@ -2,18 +2,24 @@ import os
 import re
 
 def correct_exponent(filename, folder='.', verbose='med'):
-    """CrunchFlow has trouble outputting triple-digit exponents and omits 
-    the 'E'. For example, '2.5582E-180' prints as '2.5582-180'. Correct 
-    all such instances in the provided file.
+    """Correct triple digit exponents within a file. CrunchFlow 
+    has trouble outputting triple-digit exponents and omits 
+    the 'E'. For example, '2.5582E-180' prints as '2.5582-180'. 
     
-    params:
-        filename [str]: name of the file to be processed
-        folder [str]: folder containing the file, either relative or 
-            absolute path
-        verbose [str]: Print each correction as it's performed ('high'), 
-            print total number of corrections ('med'), or print nothing 
-            ('low'). Default: 'med'
-        
+    Parameters
+    ----------
+    filename : str 
+        name of the file to be processed
+    folder : str
+        folder containing the file, either relative or absolute path
+    verbose : {'med', 'high', 'low'}
+        Print each correction as it's performed ('high'), print total 
+        number of corrections ('med'), or print nothing ('low'). The 
+        default is 'med'
+
+    Returns
+    -------
+        None. Modifies the file in place.
     """
     
     crunch_file = os.path.join(folder, filename)
@@ -55,26 +61,29 @@ def crunch_input_block(line, block):
     """While reading a CrunchFlow input file, return the input block to 
     which the current line belongs.
     
-    params:
-        line [str]: current line in the input file
-        block [str]: block to which the previous line belongs. 
-            Initialize as empty str
+    Parameters
+    ----------
+    line : str
+        current line in the input file
+    block : str
+        block to which the previous line belongs. Initialize as empty str
         
-    returns:
-        block [str]: one of the default CrunchFlow blocks (e.g., 
-            "RUNTIME") or an empty string if between blocks. If 
-            within a geochemical condition block, returns the name 
-            of the geochemical condition.
+    Returns
+    -------
+    block : str
+        one of the default CrunchFlow blocks (e.g., "RUNTIME") or an empty 
+        string if between blocks. If within a geochemical condition block, 
+        returns the name of the geochemical condition.
     
-    Example usage:
-    
-        >>> block = ""
-        >>> with open(input_file, "r") as f:
-        >>>     for line in f:
-        >>>         block = crunch_input_block(line, block)
-        >>>         
-        >>>         if block == "BOUNDARY_CONDITIONS":
-        >>>             print(line)
+    Examples
+    --------
+    >>> block = ""
+    >>> with open(input_file, "r") as f:
+    >>>     for line in f:
+    >>>         block = crunch_input_block(line, block)
+    >>>         
+    >>>         if block == "BOUNDARY_CONDITIONS":
+    >>>             print(line)
     
     """
     

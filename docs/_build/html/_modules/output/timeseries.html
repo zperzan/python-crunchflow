@@ -1,0 +1,486 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>output.timeseries &mdash; python-crunchflow 1.0.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> python-crunchflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">python-crunchflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>output.timeseries</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for output.timeseries</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="get_ts_coords"><a class="viewcode-back" href="../../index.html#output.timeseries.get_ts_coords">[docs]</a><span class="k">def</span> <span class="nf">get_ts_coords</span><span class="p">(</span><span class="n">tsfile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a CrunchFlow time series ouput file, return the coordinate </span>
+<span class="sd">    at which that time series was output.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tsfile : str</span>
+<span class="sd">        filename containing timeseries output</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coords : tuple of int</span>
+<span class="sd">        Coordinates of the form (x, y, z)&quot;&quot;&quot;</span>
+    
+    <span class="c1"># Open the file and read in the first line</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tsfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">3</span><span class="p">:]</span>
+                
+                <span class="c1"># Final 3 fields are x, y, and z</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">z</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    
+    <span class="c1"># Return tuple</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">coords</span></div>
+
+
+<div class="viewcode-block" id="get_ts_duplicates"><a class="viewcode-back" href="../../index.html#output.timeseries.get_ts_duplicates">[docs]</a><span class="k">def</span> <span class="nf">get_ts_duplicates</span><span class="p">(</span><span class="n">tsfile</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find duplicate columns in a time series file. Useful when a user </span>
+<span class="sd">    specifies `time_series_print all` in CrunchFlow; the time series file </span>
+<span class="sd">    includes primary species printed twice.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tsfile : str</span>
+<span class="sd">        path to the time series file</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    columns : list </span>
+<span class="sd">        list of column headings without duplicates</span>
+<span class="sd">    nondup_indices : list</span>
+<span class="sd">        list of column indices without duplicates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Open the file and read in the second line</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tsfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+               
+    <span class="c1"># Get list of duplicates and how many times each is seen</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Count occurrences of each item</span>
+    <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># List of duplicate items</span>
+    <span class="n">dup_indices</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># List of first occurrences of each duplicate item</span>
+    
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="n">seen</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seen</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">duplicates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="n">dup_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="n">seen</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Do not go through if seen[col] == 1 again</span>
+    
+    <span class="c1"># Total number of columns in the file, including duplicates</span>
+    <span class="n">totcols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">nondup_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">totcols</span><span class="p">))</span> <span class="c1"># List of non-duplicated indices</span>
+
+    <span class="c1"># Delete each duplicate, but reverse sort to avoid throwing off indices </span>
+    <span class="c1"># after deleting earlier elements</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dup_indices</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">del</span> <span class="n">columns</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">nondup_indices</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">columns</span><span class="p">,</span> <span class="n">nondup_indices</span></div>
+
+    
+<div class="viewcode-block" id="timeseries"><a class="viewcode-back" href="../../index.html#output.timeseries.timeseries">[docs]</a><span class="k">class</span> <span class="nc">timeseries</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This is the timeseries class for working with CrunchFlow time </span>
+<span class="sd">    series output files.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coords : tuple of int</span>
+<span class="sd">        x, y and z coordinates of the time series</span>
+<span class="sd">    timeunit : str</span>
+<span class="sd">        time unit used in the CrunchFlow input</span>
+<span class="sd">    unit : str</span>
+<span class="sd">        Concentration units included in the file. Automatically set to the </span>
+<span class="sd">        default CrunchFlow concentration units (mol/kgw)</span>
+<span class="sd">    species : list of str</span>
+<span class="sd">        list of aqueous species in the file</span>
+<span class="sd">    data : ndarray of float</span>
+<span class="sd">        Numpy array of all data. First col is the time step and remaining </span>
+<span class="sd">        cols are species in the same order as self.species list</span>
+<span class="sd">    df : dataframe of float</span>
+<span class="sd">        Pandas dataframe of all data. Index is the time step and columns </span>
+<span class="sd">        #are the aqueous species</span>
+<span class="sd">                </span>
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    convert_mgL(database=&#39;datacom.dbs&#39;, folder=&#39;.&#39;)</span>
+<span class="sd">        Convert time series concentrations from mol/kgw to mg/L (ppm). </span>
+<span class="sd">    plot(species, units=&#39;mg/L&#39;, **kwargs)</span>
+<span class="sd">        Plot the time series of one or more species.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; ts = timeseries(&#39;Well1-1.txt&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; ts.convert_mgL()</span>
+<span class="sd">    &gt;&gt;&gt; calcium = ts.df[&#39;Ca++&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; ts.plot(&#39;Ca++&#39;)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tsfile</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read in and get basic info about the timeseries file `tsfile`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tsfile : str</span>
+<span class="sd">            Name of the CrunchFlow time series file</span>
+<span class="sd">        folder : str</span>
+<span class="sd">            Path to the CrunchFlow time series file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="n">tsfilepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">tsfile</span><span class="p">)</span>
+        
+        <span class="c1"># Get coordinates at which time series was output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">get_ts_coords</span><span class="p">(</span><span class="n">tsfilepath</span><span class="p">)</span>
+        
+        <span class="c1"># Get list of duplicates and their indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">get_ts_duplicates</span><span class="p">(</span><span class="n">tsfilepath</span><span class="p">)</span>
+        
+        <span class="c1"># Assume that, if there are duplicates, it&#39;s because user </span>
+        <span class="c1"># specified `time_series_print all` in CrunchFlow, in which </span>
+        <span class="c1"># case non-duplicate columns are printed in log format</span>
+        <span class="n">ncols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">lastcol</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        
+        <span class="c1"># If idx of the last column is greater than the # cols, </span>
+        <span class="c1"># duplicates were deleted, so set logformat = True</span>
+        <span class="k">if</span> <span class="n">lastcol</span> <span class="o">&gt;</span> <span class="n">ncols</span><span class="p">:</span> 
+            <span class="n">logformat</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logformat</span> <span class="o">=</span> <span class="kc">False</span>
+            
+        <span class="c1"># List of species (columns without the time column)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+        
+        <span class="c1"># Set time and concentration units</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeunit</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">t</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;mol/L&#39;</span>
+        
+        <span class="c1"># Load data into numpy array</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">genfromtxt</span><span class="p">(</span><span class="n">tsfilepath</span><span class="p">,</span> <span class="n">skip_header</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">indices</span><span class="p">,</span> 
+                                  <span class="n">missing_values</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Infinity&#39;</span><span class="p">,</span> <span class="s1">&#39;NaN&#39;</span><span class="p">,</span> <span class="s1">&#39;-Infinity&#39;</span><span class="p">])</span>
+        
+        <span class="c1"># If necessary, convert from log to real format</span>
+        <span class="k">if</span> <span class="n">logformat</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;pH&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Skip first two cols, which are time and pH</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span>
+        
+        <span class="c1"># Load into a pandas dataframe as well</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> 
+                               <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> 
+                               <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;time&#39;</span>
+    
+    
+<div class="viewcode-block" id="timeseries.convert_mgL"><a class="viewcode-back" href="../../index.html#output.timeseries.timeseries.convert_mgL">[docs]</a>    <span class="k">def</span> <span class="nf">convert_mgL</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;datacom.dbs&#39;</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert time series concentrations from mol/kgw to mg/L (ppm). </span>
+<span class="sd">        Note that this assumes that 1 kg water = 1 L water.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        database : str</span>
+<span class="sd">            name of the CrunchFlow database. The default is &#39;datacom.dbs&#39;</span>
+<span class="sd">        folder : str</span>
+<span class="sd">            path to the database. The default is current directory.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">            None. Modifies timeseries object in place.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">databasepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+
+        <span class="c1"># If units are already mg/L, no need to do anything</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="s1">&#39;mg/L&#39;</span><span class="p">:</span>
+            <span class="k">return</span>
+        
+        <span class="c1"># Check if database exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">databasepath</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;Could not find &#39;</span> <span class="o">+</span> <span class="n">databasepath</span><span class="p">)</span>
+        
+        <span class="n">molar_mass</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Open the database and get the molar mass of each species</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">databasepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">db</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+                    <span class="c1"># Database format is, e.g., &quot;&#39;Ca++&#39; 6.0  2.0    40.0780&quot;, </span>
+                    <span class="c1"># where the last value is the molar mass</span>
+                    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+                        <span class="n">molar_mass</span><span class="p">[</span><span class="n">spec</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Delete keys with molar masses of 0 (e.g., tracers) </span>
+        <span class="c1"># and do not convert them to mg/L</span>
+        <span class="n">del_keys</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">molar_mass</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">del_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="c1"># Cannot delete key within loop, otherwise </span>
+                                     <span class="c1"># it changes size on each iteration</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">del_keys</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">molar_mass</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">molar_mass</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning -- Did not convert </span><span class="si">{}</span><span class="s1"> to mg/L&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+                <span class="c1"># Only need to convert .data since .data and .df are linked</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">*</span><span class="n">molar_mass</span><span class="p">[</span><span class="n">spec</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span>
+
+        <span class="c1"># Update the unit attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;mg/L&#39;</span></div>
+                
+        
+<div class="viewcode-block" id="timeseries.plot"><a class="viewcode-back" href="../../index.html#output.timeseries.timeseries.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="s1">&#39;mg/L&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot the time series of one or more species.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        species : str or list of str </span>
+<span class="sd">            Either single species or list of species to be plotted</span>
+<span class="sd">        units : str</span>
+<span class="sd">            Concentration units to use for plotting. The default is &#39;mg/L&#39;</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            keyword arguments passed to plt.subplots (e.g., figsize)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : pyplot object</span>
+<span class="sd">            figure handle for current plot</span>
+<span class="sd">        ax : pyplot object</span>
+<span class="sd">            axis handle for current plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">units</span> <span class="o">==</span> <span class="s1">&#39;mg/L&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">!=</span> <span class="s1">&#39;mg/L&#39;</span><span class="p">:</span>
+            <span class="c1"># Raise error if cannot find datacom.dbs</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s1">&#39;./datacom.dbs&#39;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;Could not find default database. </span><span class="se">\</span>
+<span class="s1">                Plot with other units or convert to mg/L first using the </span><span class="se">\</span>
+<span class="s1">                convert_mgL method. See convert_mgL.__doc__ for more info.&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">convert_mgL</span><span class="p">()</span>
+        
+        <span class="c1"># Accept both str and list input, so if str, convert to list</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">species</span><span class="p">]</span>
+        
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">species</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="n">spec</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">spec</span><span class="p">)</span>
+        
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;Time (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeunit</span><span class="p">),</span> 
+               <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;Concentration (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">units</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+        
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">timeseries</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Zach Perzan
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

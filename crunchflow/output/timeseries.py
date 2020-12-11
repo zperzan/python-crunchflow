@@ -7,11 +7,15 @@ def get_ts_coords(tsfile):
     """Given a CrunchFlow time series ouput file, return the coordinate 
     at which that time series was output.
     
-    params:
-        tsfile [str]: filename containing timeseries output
+    Parameters
+    ----------
+    tsfile : str
+        filename containing timeseries output
     
-    returns:
-        coords [tuple(int)]: Coordinate of the form (x, y, z)"""
+    Returns
+    -------
+    coords : tuple of int
+        Coordinates of the form (x, y, z)"""
     
     # Open the file and read in the first line
     with open(tsfile) as f:
@@ -35,12 +39,17 @@ def get_ts_duplicates(tsfile):
     specifies `time_series_print all` in CrunchFlow; the time series file 
     includes primary species printed twice.
     
-    params:
-        tsfile [str]: path to the time series file
+    Parameters
+    ----------
+    tsfile : str
+        path to the time series file
     
-    returns:
-       columns [list]: list of column headings without duplicates
-       nondup_indices [list]: list of column indices without duplicates
+    Returns
+    -------
+    columns : list 
+        list of column headings without duplicates
+    nondup_indices : list
+        list of column indices without duplicates
     """
     
     # Open the file and read in the second line
@@ -81,32 +90,49 @@ class timeseries:
     """This is the timeseries class for working with CrunchFlow time 
     series output files.
 
-    Available methods include:
-        __init__(tsfile, folder='.')
-        convert_mgL(database='datacom.dbs', folder='.')
-        plot(species, units='mg/L', **kwargs)
+    Attributes
+    ----------
+    coords : tuple of int
+        x, y and z coordinates of the time series
+    timeunit : str
+        time unit used in the CrunchFlow input
+    unit : str
+        Concentration units included in the file. Automatically set to the 
+        default CrunchFlow concentration units (mol/kgw)
+    species : list of str
+        list of aqueous species in the file
+    data : ndarray of float
+        Numpy array of all data. First col is the time step and remaining 
+        cols are species in the same order as self.species list
+    df : dataframe of float
+        Pandas dataframe of all data. Index is the time step and columns 
+        #are the aqueous species
+                
+    Methods
+    -------
+    convert_mgL(database='datacom.dbs', folder='.')
+        Convert time series concentrations from mol/kgw to mg/L (ppm). 
+    plot(species, units='mg/L', **kwargs)
+        Plot the time series of one or more species.
 
-    Example usage:
-        >>> ts = timeseries('Well1-1.txt')
-        >>> ts.convert_mgL()
-        >>> calcium = ts.df['Ca++']
-        >>> ts.plot('Ca++')
+    Examples
+    --------
+    >>> ts = timeseries('Well1-1.txt')
+    >>> ts.convert_mgL()
+    >>> calcium = ts.df['Ca++']
+    >>> ts.plot('Ca++')
+    
     """
     
     def __init__(self, tsfile, folder='.'):
         """Read in and get basic info about the timeseries file `tsfile`.
         
-        The __init__ method sets the following attributes:
-            coords [tuple(int)]: x, y and z coordinates of the time series
-            timeunit [str]: time unit used in the CrunchFlow input
-            unit [str]: default CrunchFlow concentration unit is mol/kgw
-            species [list(str)]: list of aqueous species in the file
-            data [array(float)]: Numpy array of all data. First col is the 
-                time step and remaining cols are species in the same order 
-                as self.species list
-            df [dataframe(float)]: Pandas dataframe of all data. Index is 
-                the time step and columns are the aqueous species
-                                   
+        Parameters
+        ----------
+        tsfile : str
+            Name of the CrunchFlow time series file
+        folder : str
+            Path to the CrunchFlow time series file
         """
         
         tsfilepath = os.path.join(folder, tsfile)
@@ -161,9 +187,16 @@ class timeseries:
         """Convert time series concentrations from mol/kgw to mg/L (ppm). 
         Note that this assumes that 1 kg water = 1 L water.
         
-        params:
-            database [str]: name of the CrunchFlow database. Default: 'datacom.dbs'
-            folder [str]: path to the database. Default: current directory.
+        Parameters
+        ----------
+        database : str
+            name of the CrunchFlow database. The default is 'datacom.dbs'
+        folder : str
+            path to the database. The default is current directory.
+            
+        Returns
+        -------
+            None. Modifies timeseries object in place.
         """
 
         databasepath = os.path.join(folder, database)
@@ -207,21 +240,26 @@ class timeseries:
 
         # Update the unit attribute
         self.unit = 'mg/L'
-        
-        return
-        
+                
         
     def plot(self, species, units='mg/L', **kwargs):
-        """Plot the time series of species.
+        """Plot the time series of one or more species.
         
-        params:
-            species [str|list(str)]: either str or list of species to be plotted
-            units [str]: units to use for plotting. Default: 'mg/L'
-            **kwargs: keyword arguments passed to plt.subplots (e.g., figsize)
+        Parameters
+        ----------
+        species : str or list of str 
+            Either single species or list of species to be plotted
+        units : str
+            Concentration units to use for plotting. The default is 'mg/L'
+        **kwargs : dict
+            keyword arguments passed to plt.subplots (e.g., figsize)
 
-        returns:
-            fig [matplotlib figure]: figure handle for current plot
-            ax [matplotlib axis]: axis handle for current plot
+        Returns
+        -------
+        fig : pyplot object
+            figure handle for current plot
+        ax : pyplot object
+            axis handle for current plot
         """
         
         if units == 'mg/L' and self.unit != 'mg/L':

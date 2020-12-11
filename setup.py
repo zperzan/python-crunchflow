@@ -18,7 +18,6 @@ setup(
         'numpy',
         'matplotlib',
         'pandas',
-        'shlex',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

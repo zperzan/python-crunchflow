@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>util &mdash; python-crunchflow 1.0.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> python-crunchflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">python-crunchflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>util</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for util</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<div class="viewcode-block" id="correct_exponent"><a class="viewcode-back" href="../index.html#util.correct_exponent">[docs]</a><span class="k">def</span> <span class="nf">correct_exponent</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="s1">&#39;med&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Correct triple digit exponents within a file. CrunchFlow </span>
+<span class="sd">    has trouble outputting triple-digit exponents and omits </span>
+<span class="sd">    the &#39;E&#39;. For example, &#39;2.5582E-180&#39; prints as &#39;2.5582-180&#39;. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str </span>
+<span class="sd">        name of the file to be processed</span>
+<span class="sd">    folder : str</span>
+<span class="sd">        folder containing the file, either relative or absolute path</span>
+<span class="sd">    verbose : {&#39;med&#39;, &#39;high&#39;, &#39;low&#39;}</span>
+<span class="sd">        Print each correction as it&#39;s performed (&#39;high&#39;), print total </span>
+<span class="sd">        number of corrections (&#39;med&#39;), or print nothing (&#39;low&#39;). The </span>
+<span class="sd">        default is &#39;med&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        None. Modifies the file in place.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">crunch_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">n_repl</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># Count number of replacements</span>
+
+    <span class="c1"># Pre-compile regex to save time</span>
+    <span class="n">neg_search</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;([0-9][0-9])\-([0-9][0-9][0-9])&#39;</span><span class="p">)</span>
+    <span class="n">pos_search</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;([0-9][0-9])\+([0-9][0-9][0-9])&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Read in crunch input file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">crunch_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">cf</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">crunch_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cf</span><span class="p">:</span>
+            <span class="c1"># before any changes, store line for printing </span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span>
+
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">neg_search</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>  
+                <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">neg_search</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1E-\2&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">n_repl</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pos_search</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>  
+                <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pos_search</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1E+\2&#39;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="n">n_repl</span> <span class="o">+=</span> <span class="mi">1</span>
+                    
+            <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="s1">&#39;high&#39;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original: </span><span class="se">\n\t</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;New: </span><span class="se">\n\t</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span>
+
+                
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            
+    <span class="k">if</span> <span class="n">verbose</span><span class="o">==</span><span class="s1">&#39;med&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Made </span><span class="si">{}</span><span class="s2"> replacements in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_repl</span><span class="p">,</span> <span class="n">crunch_file</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="crunch_input_block"><a class="viewcode-back" href="../index.html#util.crunch_input_block">[docs]</a><span class="k">def</span> <span class="nf">crunch_input_block</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;While reading a CrunchFlow input file, return the input block to </span>
+<span class="sd">    which the current line belongs.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line : str</span>
+<span class="sd">        current line in the input file</span>
+<span class="sd">    block : str</span>
+<span class="sd">        block to which the previous line belongs. Initialize as empty str</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    block : str</span>
+<span class="sd">        one of the default CrunchFlow blocks (e.g., &quot;RUNTIME&quot;) or an empty </span>
+<span class="sd">        string if between blocks. If within a geochemical condition block, </span>
+<span class="sd">        returns the name of the geochemical condition.</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; block = &quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; with open(input_file, &quot;r&quot;) as f:</span>
+<span class="sd">    &gt;&gt;&gt;     for line in f:</span>
+<span class="sd">    &gt;&gt;&gt;         block = crunch_input_block(line, block)</span>
+<span class="sd">    &gt;&gt;&gt;         </span>
+<span class="sd">    &gt;&gt;&gt;         if block == &quot;BOUNDARY_CONDITIONS&quot;:</span>
+<span class="sd">    &gt;&gt;&gt;             print(line)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Strip whitespace</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="c1"># List of valid CrunchFlow input blocks</span>
+    <span class="n">cr_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;TITLE&#39;</span><span class="p">,</span> <span class="s1">&#39;MINERALS&#39;</span><span class="p">,</span> <span class="s1">&#39;AQUEOUS_KINETICS&#39;</span><span class="p">,</span> <span class="s1">&#39;RUNTIME&#39;</span><span class="p">,</span> 
+                 <span class="s1">&#39;PEST&#39;</span><span class="p">,</span> <span class="s1">&#39;PRIMARY_SPECIES&#39;</span><span class="p">,</span> <span class="s1">&#39;SECONDARY_SPECIES&#39;</span><span class="p">,</span> 
+                 <span class="s1">&#39;SURFACE_COMPLEXATION&#39;</span><span class="p">,</span> <span class="s1">&#39;GASES&#39;</span><span class="p">,</span> <span class="s1">&#39;TRANSPORT&#39;</span><span class="p">,</span> 
+                 <span class="s1">&#39;BOUNDARY_CONDITIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;TEMPERATURE&#39;</span><span class="p">,</span> <span class="s1">&#39;ISOTOPES&#39;</span><span class="p">,</span> 
+                 <span class="s1">&#39;ION_EXCHANGE&#39;</span><span class="p">,</span> <span class="s1">&#39;POROSITY&#39;</span><span class="p">,</span> <span class="s1">&#39;DISCRETIZATION&#39;</span><span class="p">,</span> 
+                 <span class="s1">&#39;INITIAL_CONDITIONS&#39;</span><span class="p">,</span> <span class="s1">&#39;FLOW&#39;</span><span class="p">,</span> <span class="s1">&#39;OUTPUT&#39;</span><span class="p">,</span> <span class="s1">&#39;EROSION&#39;</span><span class="p">]</span>
+
+    <span class="c1"># If it&#39;s all uppercase, we are at the beginning or end of a block</span>
+    <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cr_fields</span><span class="p">:</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">line</span>
+            
+        <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;END&#39;</span><span class="p">:</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    
+    <span class="c1"># Geochemical conditions block</span>
+    <span class="k">elif</span> <span class="s1">&#39;Condition&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Condition&#39;</span><span class="p">:</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">block</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Zach Perzan
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

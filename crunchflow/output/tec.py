@@ -1,21 +1,25 @@
 import os
 import re
 import numpy as np
-import shlex
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
 def get_tec_metadata(file):
-    """Given a crunch .tec output file, read it in and return a list of the variables
-    included in the output file
+    """Given a crunch .tec output file, read it in and return a list of the 
+    variables (e.g., 'X-Perm', 'Y-Perm', etc) included in the output file.
     
-    params:
-        file [str]: filename to read in
+    Parameters
+    ----------
+    file : str
+        Filename to read in
         
-    returns:
-        columns [list(str)]: ordered list of variables included in filename
-        title [str]: Value included in this file, as output by CrunchFlow
+    Returns
+    -------
+    columns : list, str
+        ordered list of variables included in filename 
+    title : str
+        Value included in this file, as output by CrunchFlow
     """
 
     # Instantiate empty list of columns
@@ -28,58 +32,127 @@ def get_tec_metadata(file):
                 title = line.split('"')[1]
             
             if "VARIABLES" in line:
-                # Shlex preserves spaces within quotes (e.g., "X Velocity")
-                columns = shlex.split(line) 
+                columns = line.split('"')
     
     # Remove x, y, z
-    columns.remove('VARIABLES')
-    columns.remove('=')
+    columns.remove('VARIABLES = ')
     columns.remove('X')
     columns.remove('Y')
     columns.remove('Z')
     
+    # Remove whitespace
+    remove_fields = [col for col in columns if col.isspace()]
+
+    for col in remove_fields:
+        columns.remove(col)
+    
     return columns, title
+
+
+def get_tec_output_times(crunch_log, folder='.'):
+    """Given a log of CrunchFlow terminal output, get the time steps 
+    associated with .tec file numbers. For example, during a model run, 
+    CrunchFlow will print progress to the screen, including blocks that 
+    look like:
+    
+        >>> WRITING OUTPUT FILES
+        >>> Time (days) =  9.000E+00
+        >>> File number  =            2
+    
+    This function combs through that terminal output to create a list of 
+    times at which .tec files were written.
+    
+    Parameters
+    ----------
+    crunch_log : str
+        Filename of the crunchflow terminal output
+    folder : str
+        Folder in which 'crunch_log' is located.The default is the
+        current directory
+        
+    Returns
+    -------
+    output_times : list of float 
+        Ordered list of the output times (in CrunchFlow time units) 
+        corresponding to each .tec file number.
+
+    """
+    
+    output_times = {}
+    
+    filepath = os.path.join(folder, crunch_log)
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if 'WRITING OUTPUT FILES' in line:
+                time = float(lines[i+1].split()[3])
+                fileno = int(lines[i+2].split()[3])
+                
+                output_times[fileno] = time
+                
+    return output_times
 
 
 class tec:
     """This is the tec class for working with CrunchFlow .tec files.
 
-    Available methods include:
-        __init__(fileprefix)
-        plot(variable, time)
-        plot_series(variable)
-        extract(variable, time)
-        outline(variable, value, time)
+    Attributes
+    ----------
+    times : list of int 
+        relative times at which .tec files were output, sorted
+    files : list of str
+        ordered list of all files matching fileprefix
+    columns : list of str
+        list of all vars included within each .tec file
+    nx : int
+        # of grid cells in the x direction
+    ny : int
+        # of grid cells in the y direction
+    nz : int
+        # of grid cells in the z direction
+    coords : ndarray of float 
+        (nx*ny*nz, 2) array of x, y coordinates of each node
+    griddedX : ndarray of float 
+        (ny, nx) array of x coordinates; used for plotting
+    griddedY : ndarray of float 
+        (ny, nx) array of y coordinates; used for plotting
+        
+    Methods
+    -------
+    plot(variable, time)
+        Plot .tec output from a single time step.
+    plot_series(variable)
+        Plot .tec output for a series of time steps.
+    extract(variable, time)
+        Return the spatial profile of var at the given time.
+    outline(variable, value, time)
+        Get line segments that outline all the regions equal to 
+        the provided value.
 
-    Example usage:
-        >>> vol = tec('volume')
-        >>> print(vol.columns)
-        >>> vol.plot('Calcite')
-        >>> calcite = vol.extract('Calcite', time=2)
+    Examples
+    --------
+    >>> vol = tec('volume')
+    >>> print(vol.columns)
+    >>> vol.plot('Calcite')
+    >>> calcite = vol.extract('Calcite', time=2)
     """
     
     def __init__(self, fileprefix, folder='.', output_times=None):
         """Read in and get basic info about all .tec files matching `fileprefix`.
-        For example, `tec('volume')` will read in all files matching 'volume[0-9]+.tec'
+        For example, `tec('volume')` will read in all files matching 
+        'volume[0-9]+.tec'
         
-        params:
-            fileprefix [str]: file prefix of the tec file to read in, without the timestep number
-                              or ".tec" file endind. For example, fileprefix='volume' will read 
-                              in 'volume*.tec' files available in folder 
-            folder [str]: folder in which the .tec files are located. Default: current directory
-            output_times [list(float)]: list of the actual output times at which the .tec files were 
-                                        output
-        
-        The __init__ method sets the following attributes:
-            times [list(int)]: relative times at which .tec files were output, sorted
-            files [list(str)]: ordered list of all files matching fileprefix
-            columns [list(str)]: list of all vars included within each .tec file
-            nx [int]: # of grid cells in the x direction
-            ny [int]: # of grid cells in the y direction
-            nz [int]: # of grid cells in the z direction
-            coords [array(float)]: (nx*ny*nz, 2) array of x, y coordinates of each node
-            griddedX [array(float)]: (ny, nx) array of x coordinates; used for plotting
-            griddedY [array(float)]: (ny, nx) array of y coordinates; used for plotting
+        Parameters
+        ----------
+        fileprefix : str
+            file prefix of the tec file to read in, without the timestep 
+            number or ".tec" file ending.
+        folder : str
+            folder in which the .tec files are located. The default is the 
+            current directory
+        output_times : list of float 
+            list of the actual output times at which the .tec files were 
+            output, in CrunchFlow time units
         """
              
         # Glob doesn't support regex, so match manually using re and os
@@ -134,20 +207,29 @@ class tec:
 
     def plot(self, var, time=None, plot_type='image', figsize=(12,3), 
              **kwargs):
-        """Plot tec output from a single time step.
+        """Plot .tec output from a single time step.
         
-        params:
-            var [str]: variable to plot
-            time [int]: which time slice to show
-            figsize [tuple]: figure size; default (12, 3)
-            plot_type [str]: whether to display an image ('image') or a 
-                contour-filled contour plot ('contourf')
-            **kwargs: args passed on to matplotlib plot function (either
-                contourf or imshow)
+        Parameters
+        ----------
+        var : str
+            variable to plot (e.g., 'H+')
+        time : int
+            which time slice to show
+        figsize : tuple of int
+            figure size; default (12, 3)
+        plot_type : str
+            whether to display an image ('image') or a color-filled 
+            contour plot ('contourf')
+        **kwargs : dict
+            args passed on to matplotlib plot function (either contourf 
+            or imshow)
         
-        returns:
-            fig: matplotlib fig handle for the plot
-            ax: matplotlib ax handle for the plot
+        Returns
+        -------
+        fig : pyplot object
+            matplotlib fig handle for the plot
+        ax : pyplot object
+            matplotlib ax handle for the plot
         """
         
         # If time is not given, plot the first time slice
@@ -159,7 +241,7 @@ class tec:
         
         # Get column number of var to plot
         col_no = self.columns.index(var) + 3 # Add 3 after deleting X, Y and Z
-        itime = self.times.index(time) # Index of time, in case self.times[0] != 0
+        itime = self.times.index(time) # Index of time, if self.times[0] != 0
         
         # Read in gridded data to numpy array
         z = np.loadtxt(self.files[itime], skiprows=3, usecols=col_no)
@@ -211,20 +293,29 @@ class tec:
     
     def plot_series(self, var, times=None, plot_type='image', 
                     figsize=None, **kwargs):
-        """Plot tec output for a series of time steps.
+        """Plot .tec output for a series of time steps.
         
-        params:
-            var [str]: variable to plot
-            times [list]: time steps to plot, must be either components of 
-                self.times or self.output_times; defaults to all time steps
-            plot_type [str]: whether to display an image ('image') or a 
-                contour-filled contour plot ('contourf')
-            figsize [tuple]: figure size; default (12, 1.5 * # of timesteps)
-            **kwargs: args passed on to matplotlib's imshow
+        Parameters
+        ----------
+        var : str
+            variable to plot (e.g., 'H+')
+        times : list
+            time steps to plot, must be either components of self.times or 
+            self.output_times; defaults to all time steps
+        plot_type : str
+            whether to display an image ('image') or a contour-filled contour 
+            plot ('contourf')
+        figsize : tuple of int
+            figure size; default (12, 1.5 * # of timesteps)
+        **kwargs : dict
+            args passed on to matplotlib's imshow
             
-        returns:
-            fig: matplotlib fig handle for the plot
-            axes: list of matplotlib axes handles for each subplot
+        Returns
+        -------
+        fig : pyplot object
+            matplotlib fig handle for the plot
+        axes : list of pyplot objects
+            list of matplotlib axes handles for each subplot
         """
         
         # Check input
@@ -345,12 +436,17 @@ class tec:
     def extract(self, var, time=1):
         """Return the spatial profile of var at the given time.
         
-        params:
-            var [str]: variable to return (e.g., 'Porosity')
-            time [int]: time slice at which to return the profile
+        Parameters
+        ----------
+        var : str
+            variable to return (e.g., 'Porosity')
+        time : int
+            time slice at which to return the profile
         
-        returns:
-            data [array(float)]: (ny, nx) numpy array of var
+        Returns
+        -------
+        data : ndarray of float
+            (ny, nx) numpy array of var
         
         """
         if var not in self.columns:
@@ -367,28 +463,36 @@ class tec:
 
 
     def outline(self, var, value=None, time=1):
-        """Get line segments that outline all the regions equal to the provided value. 
-        Useful for generating outlines of a particular sediment type or stratum and later
-        adding to a plot of a different variable.
+        """For a given .tec file, get line segments that outline all the regions 
+        equal to the provided value. Useful for generating outlines of a areas 
+        of a model domain sharing a single attribute (e.g., permeability) and 
+        later adding the outlines to a plot of a different variable.
         
-        params:
-            var [str]: variable variable to outline
-            value [float]: value to outline. Default: least-frequent value in array
-            time [int]: time slice at which to create an outline
+        Parameters
+        ----------
+        var : str
+            variable to outline (e.g., 'Porosity')
+        value : float 
+            value to outline. The default is least-frequent value in array
+        time : int
+            time slice at which to create an outline
         
-        returns:
-            segments [array(float)]: array of (x,y) coordinate pairs for each line segment
-                                     that comprises the outline
+        Returns
+        -------
+        segments : ndarray of float
+            array of (x,y) coordinate pairs for each line segment that comprises 
+            the outline
 
-        Example usage:
-            >>> # Get stratigraphy from permeability map
-            >>> perm = tec('permeability')
-            >>> segments = perm.outline(
-            >>> 
-            >>> # Plot stratigraphy outlines on O2 map
-            >>> conc = tec('conc')
-            >>> fig, ax = conc.plot('O2(aq)')
-            >>> ax.plot(segments[:,0], segments[:,1])
+        Examples
+        --------
+        >>> # Get stratigraphy from permeability map
+        >>> perm = tec('permeability')
+        >>> segments = perm.outline('X-Perm')
+        >>> 
+        >>> # Plot stratigraphy outlines on O2 map
+        >>> conc = tec('conc')
+        >>> fig, ax = conc.plot('O2(aq)')
+        >>> ax.plot(segments[:,0], segments[:,1])
         
         """
         

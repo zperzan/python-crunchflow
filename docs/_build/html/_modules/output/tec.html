@@ -1,0 +1,745 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>output.tec &mdash; python-crunchflow 1.0.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> python-crunchflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">python-crunchflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>output.tec</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for output.tec</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.axes_grid1</span> <span class="kn">import</span> <span class="n">make_axes_locatable</span>
+
+
+<div class="viewcode-block" id="get_tec_metadata"><a class="viewcode-back" href="../../index.html#output.tec.get_tec_metadata">[docs]</a><span class="k">def</span> <span class="nf">get_tec_metadata</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a crunch .tec output file, read it in and return a list of the </span>
+<span class="sd">    variables (e.g., &#39;X-Perm&#39;, &#39;Y-Perm&#39;, etc) included in the output file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file : str</span>
+<span class="sd">        Filename to read in</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    columns : list, str</span>
+<span class="sd">        ordered list of variables included in filename </span>
+<span class="sd">    title : str</span>
+<span class="sd">        Value included in this file, as output by CrunchFlow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Instantiate empty list of columns</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Open file and read line by line</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;TITLE&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            
+            <span class="k">if</span> <span class="s2">&quot;VARIABLES&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">columns</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Remove x, y, z</span>
+    <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;VARIABLES = &#39;</span><span class="p">)</span>
+    <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
+    <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Y&#39;</span><span class="p">)</span>
+    <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Z&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Remove whitespace</span>
+    <span class="n">remove_fields</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">isspace</span><span class="p">()]</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">remove_fields</span><span class="p">:</span>
+        <span class="n">columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">columns</span><span class="p">,</span> <span class="n">title</span></div>
+
+
+<div class="viewcode-block" id="get_tec_output_times"><a class="viewcode-back" href="../../index.html#output.tec.get_tec_output_times">[docs]</a><span class="k">def</span> <span class="nf">get_tec_output_times</span><span class="p">(</span><span class="n">crunch_log</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a log of CrunchFlow terminal output, get the time steps </span>
+<span class="sd">    associated with .tec file numbers. For example, during a model run, </span>
+<span class="sd">    CrunchFlow will print progress to the screen, including blocks that </span>
+<span class="sd">    look like:</span>
+<span class="sd">    </span>
+<span class="sd">        &gt;&gt;&gt; WRITING OUTPUT FILES</span>
+<span class="sd">        &gt;&gt;&gt; Time (days) =  9.000E+00</span>
+<span class="sd">        &gt;&gt;&gt; File number  =            2</span>
+<span class="sd">    </span>
+<span class="sd">    This function combs through that terminal output to create a list of </span>
+<span class="sd">    times at which .tec files were written.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    crunch_log : str</span>
+<span class="sd">        Filename of the crunchflow terminal output</span>
+<span class="sd">    folder : str</span>
+<span class="sd">        Folder in which &#39;crunch_log&#39; is located.The default is the</span>
+<span class="sd">        current directory</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    output_times : list of float </span>
+<span class="sd">        Ordered list of the output times (in CrunchFlow time units) </span>
+<span class="sd">        corresponding to each .tec file number.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">output_times</span> <span class="o">=</span> <span class="p">{}</span>
+    
+    <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">crunch_log</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;WRITING OUTPUT FILES&#39;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">fileno</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">3</span><span class="p">])</span>
+                
+                <span class="n">output_times</span><span class="p">[</span><span class="n">fileno</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+                
+    <span class="k">return</span> <span class="n">output_times</span></div>
+
+
+<div class="viewcode-block" id="tec"><a class="viewcode-back" href="../../index.html#output.tec.tec">[docs]</a><span class="k">class</span> <span class="nc">tec</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This is the tec class for working with CrunchFlow .tec files.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    times : list of int </span>
+<span class="sd">        relative times at which .tec files were output, sorted</span>
+<span class="sd">    files : list of str</span>
+<span class="sd">        ordered list of all files matching fileprefix</span>
+<span class="sd">    columns : list of str</span>
+<span class="sd">        list of all vars included within each .tec file</span>
+<span class="sd">    nx : int</span>
+<span class="sd">        # of grid cells in the x direction</span>
+<span class="sd">    ny : int</span>
+<span class="sd">        # of grid cells in the y direction</span>
+<span class="sd">    nz : int</span>
+<span class="sd">        # of grid cells in the z direction</span>
+<span class="sd">    coords : ndarray of float </span>
+<span class="sd">        (nx*ny*nz, 2) array of x, y coordinates of each node</span>
+<span class="sd">    griddedX : ndarray of float </span>
+<span class="sd">        (ny, nx) array of x coordinates; used for plotting</span>
+<span class="sd">    griddedY : ndarray of float </span>
+<span class="sd">        (ny, nx) array of y coordinates; used for plotting</span>
+<span class="sd">        </span>
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    plot(variable, time)</span>
+<span class="sd">        Plot .tec output from a single time step.</span>
+<span class="sd">    plot_series(variable)</span>
+<span class="sd">        Plot .tec output for a series of time steps.</span>
+<span class="sd">    extract(variable, time)</span>
+<span class="sd">        Return the spatial profile of var at the given time.</span>
+<span class="sd">    outline(variable, value, time)</span>
+<span class="sd">        Get line segments that outline all the regions equal to </span>
+<span class="sd">        the provided value.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; vol = tec(&#39;volume&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print(vol.columns)</span>
+<span class="sd">    &gt;&gt;&gt; vol.plot(&#39;Calcite&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; calcite = vol.extract(&#39;Calcite&#39;, time=2)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fileprefix</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">output_times</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read in and get basic info about all .tec files matching `fileprefix`.</span>
+<span class="sd">        For example, `tec(&#39;volume&#39;)` will read in all files matching </span>
+<span class="sd">        &#39;volume[0-9]+.tec&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fileprefix : str</span>
+<span class="sd">            file prefix of the tec file to read in, without the timestep </span>
+<span class="sd">            number or &quot;.tec&quot; file ending.</span>
+<span class="sd">        folder : str</span>
+<span class="sd">            folder in which the .tec files are located. The default is the </span>
+<span class="sd">            current directory</span>
+<span class="sd">        output_times : list of float </span>
+<span class="sd">            list of the actual output times at which the .tec files were </span>
+<span class="sd">            output, in CrunchFlow time units</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+             
+        <span class="c1"># Glob doesn&#39;t support regex, so match manually using re and os</span>
+        <span class="n">search_str</span> <span class="o">=</span> <span class="n">fileprefix</span> <span class="o">+</span> <span class="s1">&#39;[0-9]+.tec&#39;</span>
+        <span class="n">unsort_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">search_str</span><span class="p">,</span> <span class="n">f</span><span class="p">)]</span>
+        
+        <span class="c1"># Get the output time in sequence for each file</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fileprefix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">st</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">unsort_files</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        
+        <span class="c1"># Set output times if provided</span>
+        <span class="k">if</span> <span class="n">output_times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="o">=</span> <span class="n">output_times</span>
+
+        <span class="c1"># Create sored list of files using the times (which are sorted numerically)</span>
+        <span class="c1"># This solves the problem that sorted str print as [&#39;vol1&#39;, &#39;vol10&#39;, &#39;vol2&#39;, etc.]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">fileprefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;.tec&#39;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">]</span>
+
+        <span class="c1"># Get the columns (variables) available in each .tec file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">get_tec_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        
+        <span class="c1"># Get the grid size</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+                <span class="c1"># Go to third line</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="c1"># Split on comma</span>
+                    <span class="n">fields</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> 
+                    
+                    <span class="c1"># Workaround for CrunchFlow typo in AqRate.tec files</span>
+                    <span class="k">if</span> <span class="s1">&#39;Aqueous Rate&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
+                        <span class="c1"># Extract numeric digits from each field</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ny</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                        
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">ny</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;\D&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">nz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+
+        <span class="c1"># Get gridded X and Y for plotting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="tec.plot"><a class="viewcode-back" href="../../index.html#output.tec.tec.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> 
+             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot .tec output from a single time step.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var : str</span>
+<span class="sd">            variable to plot (e.g., &#39;H+&#39;)</span>
+<span class="sd">        time : int</span>
+<span class="sd">            which time slice to show</span>
+<span class="sd">        figsize : tuple of int</span>
+<span class="sd">            figure size; default (12, 3)</span>
+<span class="sd">        plot_type : str</span>
+<span class="sd">            whether to display an image (&#39;image&#39;) or a color-filled </span>
+<span class="sd">            contour plot (&#39;contourf&#39;)</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            args passed on to matplotlib plot function (either contourf </span>
+<span class="sd">            or imshow)</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : pyplot object</span>
+<span class="sd">            matplotlib fig handle for the plot</span>
+<span class="sd">        ax : pyplot object</span>
+<span class="sd">            matplotlib ax handle for the plot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># If time is not given, plot the first time slice</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;contour&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;plot_type must be either &#39;image&#39; or &#39;contour&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Get column number of var to plot</span>
+        <span class="n">col_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="c1"># Add 3 after deleting X, Y and Z</span>
+        <span class="n">itime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="c1"># Index of time, if self.times[0] != 0</span>
+        
+        <span class="c1"># Read in gridded data to numpy array</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">itime</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">col_no</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">)</span>
+        <span class="n">z</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">z</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1"># Mark inf values as nan</span>
+        
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+        <span class="c1"># Plot data as color-filled contour</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;contour&#39;</span><span class="p">:</span>
+            <span class="c1"># Define colorbar steps</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">z</span><span class="p">),</span> <span class="mi">12</span><span class="p">)</span>
+
+            <span class="c1"># Ensure that colorbar steps are strictly increasing</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">z</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span> <span class="o">*</span> <span class="n">factors</span>
+
+            <span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="c1"># Plot data as image</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># Add colorbar</span>
+        <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+        <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;2%&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">CS</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">)</span>
+        
+        <span class="c1"># Build title</span>
+        <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span>
+        
+        <span class="c1"># Add the output time if it was provided</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">itime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">+=</span> <span class="s2">&quot; @ t=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_times</span><span class="p">[</span><span class="n">itime</span><span class="p">])</span>
+        
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="o">+</span><span class="s1">&#39; -- &#39;</span><span class="o">+</span><span class="n">var</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+    
+    
+<div class="viewcode-block" id="tec.plot_series"><a class="viewcode-back" href="../../index.html#output.tec.tec.plot_series">[docs]</a>    <span class="k">def</span> <span class="nf">plot_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">times</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> 
+                    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot .tec output for a series of time steps.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var : str</span>
+<span class="sd">            variable to plot (e.g., &#39;H+&#39;)</span>
+<span class="sd">        times : list</span>
+<span class="sd">            time steps to plot, must be either components of self.times or </span>
+<span class="sd">            self.output_times; defaults to all time steps</span>
+<span class="sd">        plot_type : str</span>
+<span class="sd">            whether to display an image (&#39;image&#39;) or a contour-filled contour </span>
+<span class="sd">            plot (&#39;contourf&#39;)</span>
+<span class="sd">        figsize : tuple of int</span>
+<span class="sd">            figure size; default (12, 1.5 * # of timesteps)</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            args passed on to matplotlib&#39;s imshow</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : pyplot object</span>
+<span class="sd">            matplotlib fig handle for the plot</span>
+<span class="sd">        axes : list of pyplot objects</span>
+<span class="sd">            list of matplotlib axes handles for each subplot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Check input</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;contour&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;plot_type must be either &#39;image&#39; or &#39;contour&#39;&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span>
+
+        <span class="c1"># Set up figsize if not provided</span>
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mf">1.8</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">))</span>
+
+        <span class="c1"># Interpret whether times are in output_times or self.times</span>
+        <span class="n">in_self_times</span><span class="o">=</span><span class="kc">True</span>
+        <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">times</span><span class="p">:</span>
+            <span class="c1"># Assume first that they are in self.times</span>
+            <span class="k">if</span> <span class="n">time</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">:</span>
+                <span class="n">in_self_times</span><span class="o">=</span><span class="kc">False</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find </span><span class="si">{}</span><span class="s2"> in self.times&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">time</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not find </span><span class="si">{}</span><span class="s2"> in self.output_times&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">))</span>
+                    
+        <span class="c1"># If times were given as components of self.output_times, convert </span>
+        <span class="c1"># to self.times equivalent</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">in_self_times</span><span class="p">:</span>
+            <span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">output_times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">times</span><span class="p">]</span>
+    
+        <span class="c1"># Get column number of var to plot</span>
+        <span class="n">col_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> 
+              
+        <span class="c1"># Set up minimum/maximum values observed across all time slices</span>
+        <span class="c1"># Used for min/max of color range</span>
+        <span class="n">minz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">Inf</span>
+        <span class="n">maxz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">NINF</span>
+        
+        <span class="c1"># z is a dict of numpy arrays</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">times</span><span class="p">:</span>
+            <span class="c1"># Get index of time within self.times</span>
+            <span class="n">itime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> 
+            <span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">itime</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">col_no</span><span class="p">)</span>
+            <span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">]</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">)</span>
+            <span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">])]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="c1"># Mark inf values as nan</span>
+            
+            <span class="c1"># Update min/max for color range</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">minz</span><span class="p">:</span>
+                <span class="n">minz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">])</span> <span class="o">&gt;</span> <span class="n">maxz</span><span class="p">:</span>
+                <span class="n">maxz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">])</span>
+
+        <span class="c1"># If it&#39;s a contour plot, setup the color intervals/steps</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;contour&#39;</span><span class="p">:</span>
+            <span class="c1"># Define colorbar steps</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">minz</span><span class="p">,</span> <span class="n">maxz</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+
+            <span class="c1"># Ensure that colors are strictly increasing for the colorbar</span>
+            <span class="k">if</span> <span class="n">minz</span> <span class="o">==</span> <span class="n">maxz</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">minz</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">steps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">factors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span> <span class="o">*</span> <span class="n">factors</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        
+        <span class="c1"># Loop through each time step and add to plot</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+            <span class="c1"># itime is the index of time within self.times</span>
+            <span class="c1"># i is the index of time within times</span>
+            <span class="n">itime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time</span><span class="p">)</span> 
+            
+            <span class="c1"># In case plot_series is called when there&#39;s only one time step</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span>
+            
+            <span class="c1"># Add a title to the first plot </span>
+            <span class="c1"># (and to subsequent plots if output_times was provided)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span>
+                
+                <span class="c1"># Add the output time if it was provided when tec was init</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">itime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+                    <span class="n">title</span> <span class="o">+=</span> <span class="s2">&quot; @ t=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_times</span><span class="p">[</span><span class="n">itime</span><span class="p">])</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="o">+</span><span class="s1">&#39; -- &#39;</span><span class="o">+</span><span class="n">var</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;t = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_times</span><span class="p">[</span><span class="n">itime</span><span class="p">])</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+            
+            
+            <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;contour&#39;</span><span class="p">:</span>
+                <span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> 
+                                 <span class="n">steps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;image&#39;</span><span class="p">:</span>                
+                <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> 
+                        <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">CS</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">z</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> 
+                            <span class="n">vmin</span><span class="o">=</span><span class="n">minz</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxz</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+        
+            <span class="c1"># Add colorbar</span>
+            <span class="n">divider</span> <span class="o">=</span> <span class="n">make_axes_locatable</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
+            <span class="n">cax</span> <span class="o">=</span> <span class="n">divider</span><span class="o">.</span><span class="n">append_axes</span><span class="p">(</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="s2">&quot;2%&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">CS</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cax</span><span class="p">)</span>
+
+        
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span></div>
+        
+        
+<div class="viewcode-block" id="tec.extract"><a class="viewcode-back" href="../../index.html#output.tec.tec.extract">[docs]</a>    <span class="k">def</span> <span class="nf">extract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the spatial profile of var at the given time.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var : str</span>
+<span class="sd">            variable to return (e.g., &#39;Porosity&#39;)</span>
+<span class="sd">        time : int</span>
+<span class="sd">            time slice at which to return the profile</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data : ndarray of float</span>
+<span class="sd">            (ny, nx) numpy array of var</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var</span><span class="p">))</span>
+        
+        <span class="c1"># Get column number of var to retrieve</span>
+        <span class="n">col_no</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span> <span class="c1"># Add 3 because we deleted X, Y and Z cols        </span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">[</span><span class="n">time</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">col_no</span><span class="p">)</span>
+        
+        <span class="c1"># Reshape to (ny, nx)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nx</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="tec.outline"><a class="viewcode-back" href="../../index.html#output.tec.tec.outline">[docs]</a>    <span class="k">def</span> <span class="nf">outline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;For a given .tec file, get line segments that outline all the regions </span>
+<span class="sd">        equal to the provided value. Useful for generating outlines of a areas </span>
+<span class="sd">        of a model domain sharing a single attribute (e.g., permeability) and </span>
+<span class="sd">        later adding the outlines to a plot of a different variable.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        var : str</span>
+<span class="sd">            variable to outline (e.g., &#39;Porosity&#39;)</span>
+<span class="sd">        value : float </span>
+<span class="sd">            value to outline. The default is least-frequent value in array</span>
+<span class="sd">        time : int</span>
+<span class="sd">            time slice at which to create an outline</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        segments : ndarray of float</span>
+<span class="sd">            array of (x,y) coordinate pairs for each line segment that comprises </span>
+<span class="sd">            the outline</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; # Get stratigraphy from permeability map</span>
+<span class="sd">        &gt;&gt;&gt; perm = tec(&#39;permeability&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; segments = perm.outline(&#39;X-Perm&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; </span>
+<span class="sd">        &gt;&gt;&gt; # Plot stratigraphy outlines on O2 map</span>
+<span class="sd">        &gt;&gt;&gt; conc = tec(&#39;conc&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; fig, ax = conc.plot(&#39;O2(aq)&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ax.plot(segments[:,0], segments[:,1])</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="c1"># Extract the data for this var and time slice</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+        
+        <span class="c1"># Assume least-frequent value if it isn&#39;t provided explicitly</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vals</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">counts</span><span class="p">)]</span>
+            
+        <span class="c1"># Check that value is in data</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> not found in array&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+        <span class="c1"># Mask pixels to outline</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Get coordinates of where to draw horizontal and vertical segments</span>
+        <span class="c1"># I.e., where adjacent pixels are not equal to each other</span>
+        <span class="n">ver_seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">mask</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">hor_seg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="mi">1</span><span class="p">:,:]</span> <span class="o">!=</span> <span class="n">mask</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:])</span>
+
+        <span class="c1"># Create list of each line segment, </span>
+        <span class="c1"># separated by NaN [(start_coord), (end_coord), (nan nan), ... ]</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">hor_seg</span><span class="p">):</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+
+        <span class="c1"># and the same for vertical segments</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">ver_seg</span><span class="p">):</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">))</span>
+        
+        <span class="c1"># Convert list to array</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> 
+
+        <span class="c1"># Before rescaling, get image extent</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">x1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedX</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+        <span class="n">y0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">y1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">griddedY</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> 
+
+        <span class="c1"># Rescale points according to the extent</span>
+        <span class="n">segments</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">x1</span><span class="o">-</span><span class="n">x0</span><span class="p">)</span> <span class="o">*</span> <span class="n">segments</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">segments</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y0</span> <span class="o">+</span> <span class="p">(</span><span class="n">y1</span><span class="o">-</span><span class="n">y0</span><span class="p">)</span> <span class="o">*</span> <span class="n">segments</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">segments</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">tec</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Zach Perzan
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

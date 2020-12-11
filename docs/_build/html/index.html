@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>python-crunchflow – A Python Library for Processing CrunchFlow Output &mdash; python-crunchflow 1.0.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home" alt="Documentation Home"> python-crunchflow
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">python-crunchflow – A Python Library for Processing CrunchFlow Output</a></li>
+<li><a class="reference internal" href="#module-output.tec">Spatial (tec) Output</a></li>
+<li><a class="reference internal" href="#module-output.timeseries">Time Series Output</a></li>
+<li><a class="reference internal" href="#module-util">Utilities</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">python-crunchflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>python-crunchflow – A Python Library for Processing CrunchFlow Output</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="python-crunchflow-a-python-library-for-processing-crunchflow-output">
+<h1>python-crunchflow – A Python Library for Processing CrunchFlow Output<a class="headerlink" href="#python-crunchflow-a-python-library-for-processing-crunchflow-output" title="Permalink to this headline">¶</a></h1>
+<p>python-crunchflow is an open source python package designed for processing and visualizing output from the reactive transport model <a class="reference external" href="https://bitbucket.org/crunchflow/">CrunchFlow</a>. This library provides a set of tools for quickly plotting time series and geochemical output produced by CrunchFlow.</p>
+<p>This library consists of three main modules:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">output.tec</span></code>. Class for working with CrunchFlow <code class="docutils literal notranslate"><span class="pre">spatial_profile</span></code> output, which include spatially-variable geochemical conditions and sediment properties at a given point in time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output.timeseries</span></code>. Class for working with CrunchFlow <code class="docutils literal notranslate"><span class="pre">time_series</span></code> output, which consists of temporally-variable aqueous concentrations at a specific node.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">util</span></code>. General utilities for parsing CrunchFlow input files and manipulating output.</p></li>
+</ul>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="module-output.tec">
+<span id="spatial-tec-output"></span><h1>Spatial (tec) Output<a class="headerlink" href="#module-output.tec" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="output.tec.get_tec_metadata">
+<code class="sig-prename descclassname">output.tec.</code><code class="sig-name descname">get_tec_metadata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#get_tec_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.get_tec_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a crunch .tec output file, read it in and return a list of the 
+variables (e.g., ‘X-Perm’, ‘Y-Perm’, etc) included in the output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>file</strong><span class="classifier">str</span></dt><dd><p>Filename to read in</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>columns</strong><span class="classifier">list, str</span></dt><dd><p>ordered list of variables included in filename</p>
+</dd>
+<dt><strong>title</strong><span class="classifier">str</span></dt><dd><p>Value included in this file, as output by CrunchFlow</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="output.tec.get_tec_output_times">
+<code class="sig-prename descclassname">output.tec.</code><code class="sig-name descname">get_tec_output_times</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">crunch_log</span></em>, <em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#get_tec_output_times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.get_tec_output_times" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a log of CrunchFlow terminal output, get the time steps 
+associated with .tec file numbers. For example, during a model run, 
+CrunchFlow will print progress to the screen, including blocks that 
+look like:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">WRITING</span> <span class="n">OUTPUT</span> <span class="n">FILES</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Time</span> <span class="p">(</span><span class="n">days</span><span class="p">)</span> <span class="o">=</span>  <span class="mf">9.000E+00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">File</span> <span class="n">number</span>  <span class="o">=</span>            <span class="mi">2</span>
+</pre></div>
+</div>
+<p>This function combs through that terminal output to create a list of 
+times at which .tec files were written.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>crunch_log</strong><span class="classifier">str</span></dt><dd><p>Filename of the crunchflow terminal output</p>
+</dd>
+<dt><strong>folder</strong><span class="classifier">str</span></dt><dd><p>Folder in which ‘crunch_log’ is located.The default is the
+current directory</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>output_times</strong><span class="classifier">list of float</span></dt><dd><p>Ordered list of the output times (in CrunchFlow time units) 
+corresponding to each .tec file number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="output.tec.tec">
+<em class="property">class </em><code class="sig-prename descclassname">output.tec.</code><code class="sig-name descname">tec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fileprefix</span></em>, <em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">output_times</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#tec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.tec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the tec class for working with CrunchFlow .tec files.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">vol</span> <span class="o">=</span> <span class="n">tec</span><span class="p">(</span><span class="s1">&#39;volume&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">vol</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vol</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;Calcite&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calcite</span> <span class="o">=</span> <span class="n">vol</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="s1">&#39;Calcite&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>times</strong><span class="classifier">list of int</span></dt><dd><p>relative times at which .tec files were output, sorted</p>
+</dd>
+<dt><strong>files</strong><span class="classifier">list of str</span></dt><dd><p>ordered list of all files matching fileprefix</p>
+</dd>
+<dt><strong>columns</strong><span class="classifier">list of str</span></dt><dd><p>list of all vars included within each .tec file</p>
+</dd>
+<dt><strong>nx</strong><span class="classifier">int</span></dt><dd><p># of grid cells in the x direction</p>
+</dd>
+<dt><strong>ny</strong><span class="classifier">int</span></dt><dd><p># of grid cells in the y direction</p>
+</dd>
+<dt><strong>nz</strong><span class="classifier">int</span></dt><dd><p># of grid cells in the z direction</p>
+</dd>
+<dt><strong>coords</strong><span class="classifier">ndarray of float</span></dt><dd><p>(nx*ny*nz, 2) array of x, y coordinates of each node</p>
+</dd>
+<dt><strong>griddedX</strong><span class="classifier">ndarray of float</span></dt><dd><p>(ny, nx) array of x coordinates; used for plotting</p>
+</dd>
+<dt><strong>griddedY</strong><span class="classifier">ndarray of float</span></dt><dd><p>(ny, nx) array of y coordinates; used for plotting</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>plot(variable, time)</strong></p></td>
+<td><p>Plot .tec output from a single time step.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>plot_series(variable)</strong></p></td>
+<td><p>Plot .tec output for a series of time steps.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>extract(variable, time)</strong></p></td>
+<td><p>Return the spatial profile of var at the given time.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>outline(variable, value, time)</strong></p></td>
+<td><p>Get line segments that outline all the regions equal to the provided value.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="output.tec.tec.extract">
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#tec.extract"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.tec.extract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spatial profile of var at the given time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var</strong><span class="classifier">str</span></dt><dd><p>variable to return (e.g., ‘Porosity’)</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">int</span></dt><dd><p>time slice at which to return the profile</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>data</strong><span class="classifier">ndarray of float</span></dt><dd><p>(ny, nx) numpy array of var</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.tec.tec.outline">
+<code class="sig-name descname">outline</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span></em>, <em class="sig-param"><span class="n">value</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#tec.outline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.tec.outline" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a given .tec file, get line segments that outline all the regions 
+equal to the provided value. Useful for generating outlines of a areas 
+of a model domain sharing a single attribute (e.g., permeability) and 
+later adding the outlines to a plot of a different variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var</strong><span class="classifier">str</span></dt><dd><p>variable to outline (e.g., ‘Porosity’)</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">float</span></dt><dd><p>value to outline. The default is least-frequent value in array</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">int</span></dt><dd><p>time slice at which to create an outline</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>segments</strong><span class="classifier">ndarray of float</span></dt><dd><p>array of (x,y) coordinate pairs for each line segment that comprises 
+the outline</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get stratigraphy from permeability map</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">perm</span> <span class="o">=</span> <span class="n">tec</span><span class="p">(</span><span class="s1">&#39;permeability&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">segments</span> <span class="o">=</span> <span class="n">perm</span><span class="o">.</span><span class="n">outline</span><span class="p">(</span><span class="s1">&#39;X-Perm&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Plot stratigraphy outlines on O2 map</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">conc</span> <span class="o">=</span> <span class="n">tec</span><span class="p">(</span><span class="s1">&#39;conc&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">conc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;O2(aq)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">segments</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">segments</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.tec.tec.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span></em>, <em class="sig-param"><span class="n">time</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_type</span><span class="o">=</span><span class="default_value">'image'</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">(12, 3)</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#tec.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.tec.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot .tec output from a single time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var</strong><span class="classifier">str</span></dt><dd><p>variable to plot (e.g., ‘H+’)</p>
+</dd>
+<dt><strong>time</strong><span class="classifier">int</span></dt><dd><p>which time slice to show</p>
+</dd>
+<dt><strong>figsize</strong><span class="classifier">tuple of int</span></dt><dd><p>figure size; default (12, 3)</p>
+</dd>
+<dt><strong>plot_type</strong><span class="classifier">str</span></dt><dd><p>whether to display an image (‘image’) or a color-filled 
+contour plot (‘contourf’)</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>args passed on to matplotlib plot function (either contourf 
+or imshow)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig</strong><span class="classifier">pyplot object</span></dt><dd><p>matplotlib fig handle for the plot</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">pyplot object</span></dt><dd><p>matplotlib ax handle for the plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.tec.tec.plot_series">
+<code class="sig-name descname">plot_series</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">var</span></em>, <em class="sig-param"><span class="n">times</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">plot_type</span><span class="o">=</span><span class="default_value">'image'</span></em>, <em class="sig-param"><span class="n">figsize</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/tec.html#tec.plot_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.tec.tec.plot_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot .tec output for a series of time steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>var</strong><span class="classifier">str</span></dt><dd><p>variable to plot (e.g., ‘H+’)</p>
+</dd>
+<dt><strong>times</strong><span class="classifier">list</span></dt><dd><p>time steps to plot, must be either components of self.times or 
+self.output_times; defaults to all time steps</p>
+</dd>
+<dt><strong>plot_type</strong><span class="classifier">str</span></dt><dd><p>whether to display an image (‘image’) or a contour-filled contour 
+plot (‘contourf’)</p>
+</dd>
+<dt><strong>figsize</strong><span class="classifier">tuple of int</span></dt><dd><p>figure size; default (12, 1.5 * # of timesteps)</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>args passed on to matplotlib’s imshow</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig</strong><span class="classifier">pyplot object</span></dt><dd><p>matplotlib fig handle for the plot</p>
+</dd>
+<dt><strong>axes</strong><span class="classifier">list of pyplot objects</span></dt><dd><p>list of matplotlib axes handles for each subplot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-output.timeseries">
+<span id="time-series-output"></span><h1>Time Series Output<a class="headerlink" href="#module-output.timeseries" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="output.timeseries.get_ts_coords">
+<code class="sig-prename descclassname">output.timeseries.</code><code class="sig-name descname">get_ts_coords</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tsfile</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/timeseries.html#get_ts_coords"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.timeseries.get_ts_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a CrunchFlow time series ouput file, return the coordinate 
+at which that time series was output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tsfile</strong><span class="classifier">str</span></dt><dd><p>filename containing timeseries output</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>coords</strong><span class="classifier">tuple of int</span></dt><dd><p>Coordinates of the form (x, y, z)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="output.timeseries.get_ts_duplicates">
+<code class="sig-prename descclassname">output.timeseries.</code><code class="sig-name descname">get_ts_duplicates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tsfile</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/timeseries.html#get_ts_duplicates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.timeseries.get_ts_duplicates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find duplicate columns in a time series file. Useful when a user 
+specifies <cite>time_series_print all</cite> in CrunchFlow; the time series file 
+includes primary species printed twice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>tsfile</strong><span class="classifier">str</span></dt><dd><p>path to the time series file</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>columns</strong><span class="classifier">list</span></dt><dd><p>list of column headings without duplicates</p>
+</dd>
+<dt><strong>nondup_indices</strong><span class="classifier">list</span></dt><dd><p>list of column indices without duplicates</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="output.timeseries.timeseries">
+<em class="property">class </em><code class="sig-prename descclassname">output.timeseries.</code><code class="sig-name descname">timeseries</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tsfile</span></em>, <em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/timeseries.html#timeseries"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.timeseries.timeseries" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the timeseries class for working with CrunchFlow time 
+series output files.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">timeseries</span><span class="p">(</span><span class="s1">&#39;Well1-1.txt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">convert_mgL</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">calcium</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Ca++&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;Ca++&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coords</strong><span class="classifier">tuple of int</span></dt><dd><p>x, y and z coordinates of the time series</p>
+</dd>
+<dt><strong>timeunit</strong><span class="classifier">str</span></dt><dd><p>time unit used in the CrunchFlow input</p>
+</dd>
+<dt><strong>unit</strong><span class="classifier">str</span></dt><dd><p>Concentration units included in the file. Automatically set to the 
+default CrunchFlow concentration units (mol/kgw)</p>
+</dd>
+<dt><strong>species</strong><span class="classifier">list of str</span></dt><dd><p>list of aqueous species in the file</p>
+</dd>
+<dt><strong>data</strong><span class="classifier">ndarray of float</span></dt><dd><p>Numpy array of all data. First col is the time step and remaining 
+cols are species in the same order as self.species list</p>
+</dd>
+<dt><strong>df</strong><span class="classifier">dataframe of float</span></dt><dd><p>Pandas dataframe of all data. Index is the time step and columns 
+#are the aqueous species</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 55%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>convert_mgL(database=’datacom.dbs’, folder=’.’)</strong></p></td>
+<td><p>Convert time series concentrations from mol/kgw to mg/L (ppm).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>plot(species, units=’mg/L’, **kwargs)</strong></p></td>
+<td><p>Plot the time series of one or more species.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt id="output.timeseries.timeseries.convert_mgL">
+<code class="sig-name descname">convert_mgL</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">database</span><span class="o">=</span><span class="default_value">'datacom.dbs'</span></em>, <em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'.'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/timeseries.html#timeseries.convert_mgL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.timeseries.timeseries.convert_mgL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert time series concentrations from mol/kgw to mg/L (ppm). 
+Note that this assumes that 1 kg water = 1 L water.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>database</strong><span class="classifier">str</span></dt><dd><p>name of the CrunchFlow database. The default is ‘datacom.dbs’</p>
+</dd>
+<dt><strong>folder</strong><span class="classifier">str</span></dt><dd><p>path to the database. The default is current directory.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>None. Modifies timeseries object in place.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="output.timeseries.timeseries.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">species</span></em>, <em class="sig-param"><span class="n">units</span><span class="o">=</span><span class="default_value">'mg/L'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/output/timeseries.html#timeseries.plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#output.timeseries.timeseries.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the time series of one or more species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>species</strong><span class="classifier">str or list of str</span></dt><dd><p>Either single species or list of species to be plotted</p>
+</dd>
+<dt><strong>units</strong><span class="classifier">str</span></dt><dd><p>Concentration units to use for plotting. The default is ‘mg/L’</p>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">dict</span></dt><dd><p>keyword arguments passed to plt.subplots (e.g., figsize)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>fig</strong><span class="classifier">pyplot object</span></dt><dd><p>figure handle for current plot</p>
+</dd>
+<dt><strong>ax</strong><span class="classifier">pyplot object</span></dt><dd><p>axis handle for current plot</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-util">
+<span id="utilities"></span><h1>Utilities<a class="headerlink" href="#module-util" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="util.correct_exponent">
+<code class="sig-prename descclassname">util.</code><code class="sig-name descname">correct_exponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span></em>, <em class="sig-param"><span class="n">folder</span><span class="o">=</span><span class="default_value">'.'</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">'med'</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util.html#correct_exponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.correct_exponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Correct triple digit exponents within a file. CrunchFlow 
+has trouble outputting triple-digit exponents and omits 
+the ‘E’. For example, ‘2.5582E-180’ prints as ‘2.5582-180’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>name of the file to be processed</p>
+</dd>
+<dt><strong>folder</strong><span class="classifier">str</span></dt><dd><p>folder containing the file, either relative or absolute path</p>
+</dd>
+<dt><strong>verbose</strong><span class="classifier">{‘med’, ‘high’, ‘low’}</span></dt><dd><p>Print each correction as it’s performed (‘high’), print total 
+number of corrections (‘med’), or print nothing (‘low’). The 
+default is ‘med’</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>None. Modifies the file in place.</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="util.crunch_input_block">
+<code class="sig-prename descclassname">util.</code><code class="sig-name descname">crunch_input_block</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">line</span></em>, <em class="sig-param"><span class="n">block</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/util.html#crunch_input_block"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#util.crunch_input_block" title="Permalink to this definition">¶</a></dt>
+<dd><p>While reading a CrunchFlow input file, return the input block to 
+which the current line belongs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line</strong><span class="classifier">str</span></dt><dd><p>current line in the input file</p>
+</dd>
+<dt><strong>block</strong><span class="classifier">str</span></dt><dd><p>block to which the previous line belongs. Initialize as empty str</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>block</strong><span class="classifier">str</span></dt><dd><p>one of the default CrunchFlow blocks (e.g., “RUNTIME”) or an empty 
+string if between blocks. If within a geochemical condition block, 
+returns the name of the geochemical condition.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">block</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">input_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="n">block</span> <span class="o">=</span> <span class="n">crunch_input_block</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>        
+<span class="gp">&gt;&gt;&gt; </span>        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="s2">&quot;BOUNDARY_CONDITIONS&quot;</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Zach Perzan
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
