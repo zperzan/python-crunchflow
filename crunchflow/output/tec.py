@@ -35,13 +35,13 @@ def get_tec_metadata(file):
                 columns = line.split('"')
     
     # Remove x, y, z
-    columns.remove('VARIABLES = ')
-    columns.remove('X')
-    columns.remove('Y')
-    columns.remove('Z')
+    columns = [col.strip() for col in columns]
+    for col in ['', 'VARIABLES =', 'X', 'Y', 'Z']:
+        if col in columns:
+            columns.remove(col)
     
-    # Remove whitespace
-    remove_fields = [col for col in columns if col.isspace()]
+    # Remove whitespace, which was reduced to len 0 via col.strip()
+    remove_fields = [col for col in columns if len(col) == 0]
 
     for col in remove_fields:
         columns.remove(col)
