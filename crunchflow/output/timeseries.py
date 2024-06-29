@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 def get_ts_coords(tsfile):
     """Given a CrunchFlow time series ouput file, return the coordinate 
     at which that time series was output.
@@ -59,9 +60,9 @@ def get_ts_duplicates(tsfile):
                 columns = line.split()
                
     # Get list of duplicates and how many times each is seen
-    seen = {} # Count occurrences of each item
-    duplicates = [] # List of duplicate items
-    dup_indices = [] # List of first occurrences of each duplicate item
+    seen = {}  # Count occurrences of each item
+    duplicates = []  # List of duplicate items
+    dup_indices = []  # List of first occurrences of each duplicate item
     
     for col in columns:
         if col not in seen:
@@ -85,8 +86,14 @@ def get_ts_duplicates(tsfile):
 
     return columns, nondup_indices
 
-    
+
 class timeseries:
+    def __init__(self, tsfile, folder='.'):
+        raise DeprecationWarning("The crunchflow.output.timeseries class has been deprecated. "
+                                 "Use crunchflow.output.TimeSeries instead.")
+
+
+class TimeSeries:
     """This is the timeseries class for working with CrunchFlow time 
     series output files.
 
@@ -117,11 +124,10 @@ class timeseries:
 
     Examples
     --------
-    >>> ts = timeseries('Well1-1.txt')
+    >>> ts = TimeSeries('Well1-1.txt')
     >>> ts.convert_mgL()
     >>> calcium = ts.df['Ca++']
     >>> ts.plot('Ca++')
-    
     """
     
     def __init__(self, tsfile, folder='.'):
@@ -181,9 +187,8 @@ class timeseries:
                                index=self.data[:, 0], 
                                columns=self.species)
         self.df.index.name = 'time'
-    
-    
-    def convert_mgL(self, database='datacom.dbs', folder='.'):
+
+    def convert_mgL(self, database='datacom.dbs', folder='.', warnings=True):
         """Convert time series concentrations from mol/kgw to mg/L (ppm). 
         Note that this assumes that 1 kg water = 1 L water.
         
@@ -193,6 +198,8 @@ class timeseries:
             name of the CrunchFlow database. The default is 'datacom.dbs'
         folder : str
             path to the database. The default is current directory.
+        warnings : bool
+            whether to print warnings for species not found in the database.
             
         Returns
         -------
@@ -225,14 +232,15 @@ class timeseries:
         del_keys = []
         for key, value in molar_mass.items():
             if value == 0:
-                del_keys.append(key) # Cannot delete key within loop, otherwise 
-                                     # it changes size on each iteration
+                del_keys.append(key)  # Cannot delete key within loop, otherwise
+                                      # it changes size on each iteration
         for key in del_keys:
             del molar_mass[key]
 
         for spec in self.species:
             if spec not in molar_mass.keys():
-                print('Warning -- Did not convert {} to mg/L'.format(spec))
+                if warnings:
+                    print('Warning -- Did not convert {} to mg/L'.format(spec))
             else:
                 idx = self.columns.index(spec)
                 # Only need to convert .data since .data and .df are linked
@@ -240,8 +248,7 @@ class timeseries:
 
         # Update the unit attribute
         self.unit = 'mg/L'
-                
-        
+
     def plot(self, species, units='mg/L', **kwargs):
         """Plot the time series of one or more species.
         
@@ -276,7 +283,8 @@ class timeseries:
             species = [species]
         
         fig, ax = plt.subplots(**kwargs)
-        
+
+
         for spec in species:
             ax.plot(self.df.index, self.df[spec], label=spec)
         
@@ -288,4 +296,4 @@ class timeseries:
 
 
 if __name__ == '__main__':
-    print(timeseries.__doc__)
+    print(TimeSeries.__doc__)

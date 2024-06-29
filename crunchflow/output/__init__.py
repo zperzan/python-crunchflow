@@ -1,2 +1,2 @@
-from .tec import tec
-from .timeseries import timeseries
+from .spatial import SpatialProfile, tec
+from .timeseries import TimeSeries, timeseries

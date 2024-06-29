@@ -5,7 +5,17 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-def get_tec_metadata(file):
+def isnumeric_scientific(s):
+    """Check if a string is numeric. Note that isnumeric does not
+    recognize scientific notation, but float() does."""
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def get_tec_metadata(file, folder='.'):
     """Given a crunch .tec output file, read it in and return a list of the 
     variables (e.g., 'X-Perm', 'Y-Perm', etc) included in the output file.
     
@@ -13,6 +23,8 @@ def get_tec_metadata(file):
     ----------
     file : str
         Filename to read in
+    folder : str
+        Folder in which 'file' is located. The default is the current directory
         
     Returns
     -------
@@ -20,33 +32,83 @@ def get_tec_metadata(file):
         ordered list of variables included in filename 
     title : str
         Value included in this file, as output by CrunchFlow
+    fmt : str
+        Format of the file, either '.tec' or '.out'
     """
 
     # Instantiate empty list of columns
     columns = []
-    
-    # Open file and read line by line
-    with open(file) as f:
-        for line in f:
-            if "TITLE" in line:
-                title = line.split('"')[1]
-            
-            if "VARIABLES" in line:
-                columns = line.split('"')
-    
-    # Remove x, y, z
-    columns = [col.strip() for col in columns]
-    for col in ['', 'VARIABLES =', 'X', 'Y', 'Z']:
-        if col in columns:
-            columns.remove(col)
-    
-    # Remove whitespace, which was reduced to len 0 via col.strip()
-    remove_fields = [col for col in columns if len(col) == 0]
 
-    for col in remove_fields:
-        columns.remove(col)
-    
-    return columns, title
+    # Open file and read line by line
+    inpath = os.path.join(folder, file)
+    with open(inpath) as f:
+        # Read the first line to determine the format of the file
+        line = f.readline()
+        if "TITLE" in line:
+            title = line.split('"')[1]
+            fmt = '.tec'
+        elif 'Time' in line:
+            title = ''
+            fmt = '.out'
+        else:
+            raise ValueError("Could not determine the format of this file")
+
+        # Read the rest of the header
+        if fmt == '.tec':
+            line = f.readline()
+            columns = line.split('"')
+
+            # Remove x, y, z
+            columns = [col.strip() for col in columns]
+            for col in ['', 'VARIABLES =', 'X', 'Y', 'Z']:
+                if col in columns:
+                    columns.remove(col)
+
+            # Remove whitespace, which was reduced to len 0 via col.strip()
+            remove_fields = [col for col in columns if len(col) == 0]
+
+            for col in remove_fields:
+                columns.remove(col)
+        elif fmt == '.out':
+            line = f.readline()  # skip units line
+            line = f.readline()
+
+            # Split on whitespace
+            raw_cols = line.split()
+
+            # Some versions of CrunchFlow don't include column names
+            # in this case, the column entries should be numeric and we'll
+            # assign them names
+            if isnumeric_scientific(raw_cols[0]):
+                columns = ['col%d' % i for i in range(len(raw_cols))]
+            else:
+                columns = raw_cols
+
+    return columns, title, fmt
+
+
+def get_out_output_time(file):
+    """Given a CrunchFlow .out file, read it in and return the output time,
+    which should be stored in the first line
+
+    Parameters
+    ----------
+    file : str
+        Filename to read in
+
+    Returns
+    -------
+    time : float
+        output time of the file"""
+
+    with open(file) as f:
+        line = f.readline()
+        if 'Time' not in line:
+            raise ValueError(f"Could not find the output time of {file}")
+        else:
+            time = float(line.split()[-1])
+
+    return time
 
 
 def get_tec_output_times(crunch_log, folder='.'):
@@ -94,6 +156,12 @@ def get_tec_output_times(crunch_log, folder='.'):
 
 
 class tec:
+    def __init__(self, fileprefix, folder='.', output_times=None, suffix='.tec'):
+        raise DeprecationWarning("The crunchflow.output.tec class has been deprecated. "
+                                 "Use crunchflow.output.SpatialProfile instead.")
+
+
+class SpatialProfile:
     """This is the tec class for working with CrunchFlow .tec files.
 
     Attributes
@@ -131,13 +199,13 @@ class tec:
 
     Examples
     --------
-    >>> vol = tec('volume')
+    >>> vol = SpatialProfile('volume')
     >>> print(vol.columns)
     >>> vol.plot('Calcite')
     >>> calcite = vol.extract('Calcite', time=2)
     """
     
-    def __init__(self, fileprefix, folder='.', output_times=None):
+    def __init__(self, fileprefix, folder='.', output_times=None, suffix='.tec'):
         """Read in and get basic info about all .tec files matching `fileprefix`.
         For example, `tec('volume')` will read in all files matching 
         'volume[0-9]+.tec'
@@ -146,64 +214,90 @@ class tec:
         ----------
         fileprefix : str
             file prefix of the tec file to read in, without the timestep 
-            number or ".tec" file ending.
+            number or ".tec" file ending. For example, if your files are
+            "volume1.tec", "volume2.tec", etc., then fileprefix should be
+            "volume".
         folder : str
             folder in which the .tec files are located. The default is the 
             current directory
         output_times : list of float 
             list of the actual output times at which the .tec files were 
             output, in CrunchFlow time units
+        suffix : str
+            file ending of the tec files to read in. This can vary depending on the
+            version of CrunchTope used. The default is '.tec', but '.out' is also
+            tried if '.tec' files are not found.
         """
              
         # Glob doesn't support regex, so match manually using re and os
-        search_str = fileprefix + '[0-9]+.tec'
+        search_str = '^' + fileprefix + '[0-9]+%s' % suffix
         unsort_files = [f for f in os.listdir(folder) if re.search(search_str, f)]
-        
+
+        if len(unsort_files) == 0:
+            # Try again with .out suffix
+            search_str = '^' + fileprefix + '[0-9]+.out'
+            unsort_files = [f for f in os.listdir(folder) if re.search(search_str, f)]
+            suffix = '.out'
+
+        if len(unsort_files) == 0:
+            raise ValueError("No files found matching %s. Double check the suffix and\n "
+                             "double check that the filename ends in a digit" % search_str)
+
+        # Get the columns (variables) available in each .tec file
+        self.columns, self.title, self.fmt = get_tec_metadata(unsort_files[0], folder=folder)
+
         # Get the output time in sequence for each file
         st = len(fileprefix)
         self.times = [int(f[st:-4]) for f in unsort_files]
         self.times.sort()
         
-        # Set output times if provided
-        if output_times is None:
-            self.output_times = None
-        else:
-            self.output_times = output_times
-
-        # Create sored list of files using the times (which are sorted numerically)
+        # Create sorted list of files using the times (which are sorted numerically)
         # This solves the problem that sorted str print as ['vol1', 'vol10', 'vol2', etc.]
-        self.files = [fileprefix + str(t) + '.tec' for t in self.times]
+        self.files = [fileprefix + str(t) + suffix for t in self.times]
         self.files = [os.path.join(folder, f) for f in self.files]
 
-        # Get the columns (variables) available in each .tec file
-        self.columns, self.title = get_tec_metadata(self.files[0])
-        
+        # Set output times if provided
+        if output_times is not None:
+            self.output_times = output_times
+        else:
+            # Otherwise, try setting it by reading from each .out file
+            if self.fmt == '.out':
+                self.output_times = [get_out_output_time(f) for f in self.files]
+            elif self.fmt == '.tec':
+                self.output_times = None
+
         # Get the grid size
-        with open(self.files[0]) as f:
-            for i, line in enumerate(f):
-                # Go to third line
-                if i == 2:
-                    # Split on comma
-                    fields = line.split(',') 
-                    
-                    # Workaround for CrunchFlow typo in AqRate.tec files
-                    if 'Aqueous Rate' not in self.title:
-                        # Extract numeric digits from each field
-                        self.nx = int(re.sub('\D', '', fields[0]))
-                        self.ny = int(re.sub('\D', '', fields[1]))
-                        self.nz = int(re.sub('\D', '', fields[2]))
-                        
-                    else:
-                        self.nx = int(re.sub('\D', '', fields[1]))
-                        self.ny = int(re.sub('\D', '', fields[2]))
-                        self.nz = np.nan
+        if self.fmt == '.tec':
+            with open(self.files[0]) as f:
+                for i, line in enumerate(f):
+                    # Go to third line
+                    if i == 2:
+                        # Split on comma
+                        fields = line.split(',')
 
+                        # Workaround for CrunchFlow typo in AqRate.tec files
+                        if 'Aqueous Rate' not in self.title:
+                            # Extract numeric digits from each field
+                            # Regex \D removes non-numeric characters
+                            self.nx = int(re.sub('\\D', '', fields[0]))
+                            self.ny = int(re.sub('\\D', '', fields[1]))
+                            self.nz = int(re.sub('\\D', '', fields[2]))
 
-        # Get gridded X and Y for plotting
-        self.coords = np.loadtxt(self.files[0], skiprows=3, usecols=[0, 1])
-        self.griddedX = self.coords[:, 0].reshape(self.ny, self.nx)
-        self.griddedY = self.coords[:, 1].reshape(self.ny, self.nx)
+                        else:
+                            self.nx = int(re.sub('\\D', '', fields[1]))
+                            self.ny = int(re.sub('\\D', '', fields[2]))
+                            self.nz = np.nan
 
+            # Get gridded X and Y for plotting
+            self.coords = np.loadtxt(self.files[0], skiprows=3, usecols=[0, 1])
+            self.griddedX = self.coords[:, 0].reshape(self.ny, self.nx)
+            self.griddedY = self.coords[:, 1].reshape(self.ny, self.nx)
+        elif self.fmt == '.out':
+            if self.columns[0] == 'col0':
+                skiprows = 2
+            else:
+                skiprows = 3
+            self.coords = np.loadtxt(self.files[0], skiprows=skiprows, usecols=[0])
 
     def plot(self, var, time=None, plot_type='image', figsize=(12,3), 
              **kwargs):
@@ -279,7 +373,7 @@ class tec:
         plt.colorbar(CS, cax=cax)
         
         # Build title
-        title=self.title
+        title = self.title
         
         # Add the output time if it was provided
         if self.output_times is not None:
@@ -289,8 +383,7 @@ class tec:
         ax.set(title=title+' -- '+var)
         
         return fig, ax
-    
-    
+
     def plot_series(self, var, times=None, plot_type='image', 
                     figsize=None, **kwargs):
         """Plot .tec output for a series of time steps.
@@ -327,14 +420,14 @@ class tec:
 
         # Set up figsize if not provided
         if figsize is None:
-            figsize = (12,1.8*len(times))
+            figsize = (12, 1.8*len(times))
 
         # Interpret whether times are in output_times or self.times
-        in_self_times=True
+        in_self_times = True
         for time in times:
             # Assume first that they are in self.times
             if time not in self.times:
-                in_self_times=False
+                in_self_times = False
                 if self.output_times is None:
                     raise ValueError("Could not find {} in self.times".format(time))
                 else:
@@ -369,7 +462,7 @@ class tec:
             if np.nanmax(z[time]) > maxz:
                 maxz = np.nanmax(z[time])
 
-        # If it's a contour plot, setup the color intervals/steps
+        # If it's a contour plot, set up the color intervals/steps
         if plot_type == 'contour':
             # Define colorbar steps
             steps = np.linspace(minz, maxz, 12)
@@ -410,8 +503,7 @@ class tec:
                 if self.output_times is not None:
                     title = "t = " + str(self.output_times[itime])
                     ax.set(title=title)
-            
-            
+
             if plot_type == 'contour':
                 CS = ax.contourf(self.griddedX, self.griddedY, z[time], 
                                  steps, **kwargs)
@@ -429,10 +521,8 @@ class tec:
             cax = divider.append_axes("right", size="2%", pad=0.2)
             plt.colorbar(CS, cax=cax)
 
-        
         return fig, axes
-        
-        
+
     def extract(self, var, time=1):
         """Return the spatial profile of var at the given time.
         
@@ -453,14 +543,28 @@ class tec:
             raise ValueError('{} not found'.format(var))
         
         # Get column number of var to retrieve
-        col_no = self.columns.index(var) + 3 # Add 3 because we deleted X, Y and Z cols        
-        data = np.loadtxt(self.files[time - 1], skiprows=3, usecols=col_no)
+        if self.fmt == '.tec':
+            col_no = self.columns.index(var) + 3  # Add 3 because we deleted X, Y and Z cols
+            data = np.loadtxt(self.files[time - 1], skiprows=3, usecols=col_no)
         
-        # Reshape to (ny, nx)
-        data = data.reshape(self.ny, self.nx)
-        
-        return data
+            # Reshape to (ny, nx)
+            data = data.reshape(self.ny, self.nx)
+        elif self.fmt == '.out':
+            # Check if this file has 3 header rows or two
+            with open(self.files[time - 1]) as f:
+                # Skip to third line
+                for i in range(3):
+                    line = f.readline()
+                if isnumeric_scientific(line.split()[0]):
+                    skiprows = 2
+                else:
+                    skiprows = 3
+            col_no = self.columns.index(var)
+            data = np.loadtxt(self.files[time - 1], skiprows=skiprows, usecols=col_no)
+        else:
+            raise ValueError("Could not determine the format of this file")
 
+        return data
 
     def outline(self, var, value=None, time=1):
         """For a given .tec file, get line segments that outline all the regions 
@@ -486,11 +590,11 @@ class tec:
         Examples
         --------
         >>> # Get stratigraphy from permeability map
-        >>> perm = tec('permeability')
+        >>> perm = SpatialProfile('permeability')
         >>> segments = perm.outline('X-Perm')
         >>> 
         >>> # Plot stratigraphy outlines on O2 map
-        >>> conc = tec('conc')
+        >>> conc = SpatialProfile('conc')
         >>> fig, ax = conc.plot('O2(aq)')
         >>> ax.plot(segments[:,0], segments[:,1])
         
@@ -513,8 +617,8 @@ class tec:
 
         # Get coordinates of where to draw horizontal and vertical segments
         # I.e., where adjacent pixels are not equal to each other
-        ver_seg = np.where(mask[:,1:] != mask[:, :-1])
-        hor_seg = np.where(mask[1:,:] != mask[:-1, :])
+        ver_seg = np.where(mask[:, 1:] != mask[:, :-1])
+        hor_seg = np.where(mask[1:, :] != mask[:-1, :])
 
         # Create list of each line segment, 
         # separated by NaN [(start_coord), (end_coord), (nan nan), ... ]
@@ -522,7 +626,7 @@ class tec:
         for p in zip(*hor_seg):
             l.append((p[1], p[0]+1))
             l.append((p[1]+1, p[0]+1))
-            l.append((np.nan,np.nan))
+            l.append((np.nan, np.nan))
 
         # and the same for vertical segments
         for p in zip(*ver_seg):
@@ -540,11 +644,11 @@ class tec:
         y1 = self.griddedY[-1, -1] 
 
         # Rescale points according to the extent
-        segments[:,0] = x0 + (x1-x0) * segments[:,0] / data.shape[1]
-        segments[:,1] = y0 + (y1-y0) * segments[:,1] / data.shape[0]
+        segments[:, 0] = x0 + (x1-x0) * segments[:, 0] / data.shape[1]
+        segments[:, 1] = y0 + (y1-y0) * segments[:, 1] / data.shape[0]
 
         return segments
 
 
 if __name__ == '__main__':
-    print(tec.__doc__)
+    print(SpatialProfile.__doc__)
