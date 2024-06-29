@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "crunchflow"
+version = "2.0.0"
+description = "A Python toolbox for working with the CrunchFlow reactive transport code"
+authors = ["Zach Perzan <zach.perzan@unlv.edu>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^2.0.0"
+matplotlib = "^3.9.0"
+pandas = "^2.2.2"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.2.2"
+tox-pyenv-redux = "^1.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

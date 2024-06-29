@@ -1,0 +1,115 @@
+TITLE
+Redox Diffusion Exercise
+END
+ 
+ 
+RUNTIME
+time_units          years
+timestep_max        0.5
+timestep_init       0.00001
+time_tolerance      0.01
+solver              gmres
+preconditioner      ilu
+precondition_level  1
+debye-huckel        true
+database_sweep      off
+speciate_only       false
+hindmarsh           true
+gimrt               true
+courant_number      1.0
+graphics            kaleidagraph
+screen_output       50
+database            HanfordTanksColumnFit3Site-GT.dbs
+save_restart        CationExchangeFlush.rst
+later_inputfiles    CationExchangeb.in
+END
+ 
+OUTPUT
+time_units           years
+spatial_profile      150  300
+time_series          breakthrough.out  30
+time_series_print    Cs+  Ca++  Na+  Tracer
+END
+ 
+BOUNDARY_CONDITIONS
+x_begin   initial_condition          flux
+x_end     initial_condition        flux
+END
+ 
+TRANSPORT
+distance_units meters
+time_units  years
+fix_diffusion  0.0
+END
+ 
+INITIAL_CONDITIONS
+initial_condition 1-30
+END
+ 
+POROSITY
+fix_porosity     0.05
+porosity_update  false
+END
+ 
+ION_EXCHANGE
+exchange   X-
+convention Gaines-Thomas
+END
+ 
+DISCRETIZATION
+distance_units  meters
+xzones 30 1.0
+END
+ 
+Condition flush
+units            molar
+temperature      25.0
+pH               7.0
+!HCO3-            CO2(g)  3.15e-04
+Cs+              0.0001
+Na+              0.5
+Ca++             0.0002
+Tracer           0.1
+NO3-              charge
+!!Following to go with HanfordTanksColumnFit3Site-GT.dbs
+X-   -cec   0.00002 
+SolidDensity    1650      
+END
+ 
+Condition initial_condition
+units            molar
+temperature      25.0
+pH               7.0
+Cs+              0.0
+Na+              0.05
+Ca++             0.0
+Tracer           0.0001
+NO3-              charge
+!!Following to go with HanfordTanksColumnFit3Site-GT.dbs      
+X-   -cec   0.00002  
+SolidDensity    1650 
+END
+ 
+FLOW
+time_units     years
+distance_units meters
+constant_flow  0.1
+END
+ 
+TEMPERATURE
+set_temperature  25.0
+END
+ 
+PRIMARY_SPECIES
+Cs+
+Na+
+Ca++
+Tracer
+H+
+NO3-
+END
+ 
+SECONDARY_SPECIES
+OH-
+END
+
