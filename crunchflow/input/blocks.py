@@ -169,7 +169,7 @@ class Output(KeywordBlock):
             else:
                 result.append(f"time_series_print      {self.time_series_print}")
         for ts in self.time_series:
-                result.append(f"time_series            {ts}")
+            result.append(f"time_series            {ts}")
         for key, value in self.other.items():
             result.append(f"{key:<22} {value}")
         return "\n".join(result)
@@ -292,9 +292,9 @@ class Flow(KeywordBlock):
         self.gravity = ''
         self.infiltration = ''
         self.initialize_hydrostatic = ''
-        self.permeability_x = ''
-        self.permeability_y = ''
-        self.permeability_z = ''
+        self.permeability_x = []
+        self.permeability_y = []
+        self.permeability_z = []
         self.porosity_update = ''
         self.pressure = []
         self.pump = ''
@@ -307,7 +307,7 @@ class Flow(KeywordBlock):
     def set_parameters(self, parameters):
         for key, value in parameters.items():
             key = key.lower()
-            if key == 'pressure':
+            if key in ['pressure', 'permeability_x', 'permeability_y', 'permeability_z']:
                 self.pressure.append(value)
             elif hasattr(self, key):
                 setattr(self, key, value)
@@ -315,20 +315,33 @@ class Flow(KeywordBlock):
                 self.other[key] = value
 
     def __str__(self):
+        exceptions = ['other', 'pressure', 'permeability_x', 'permeability_y', 'permeability_z']
         result = []
         for attr, value in self.__dict__.items():
-            if attr not in ['other', 'pressure'] and (value or isinstance(value, bool)):
+            if attr not in exceptions and (value or isinstance(value, bool)):
                 if isinstance(value, list):
                     result.append(f"{attr:<22} {' '.join(map(str, value))}")
                 elif isinstance(value, bool):
                     result.append(f"{attr:<22} {str(value).lower()}")
                 else:
                     result.append(f"{attr:<22} {value}")
+
+        # Print pressure, since it can be defined multiple times
         for press in self.pressure:
             line = f"pressure               "
             for p in press.split():
                 line += f"{p:<8} "
             result.append(line.strip())
+
+        # Print permeability, since it can be defined multiple times
+        for perm in self.permeability_x:
+            result.append(f"permeability_x         {perm}")
+        for perm in self.permeability_y:
+            result.append(f"permeability_y         {perm}")
+        for perm in self.permeability_z:
+            result.append(f"permeability_z         {perm}")
+
+        # Finally, the other category
         for key, value in self.other.items():
             result.append(f"{key:<22} {value}")
         return "\n".join(result)

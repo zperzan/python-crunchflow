@@ -5,6 +5,7 @@ from crunchflow.input.blocks import (
     PrimarySpecies, SecondarySpecies, Gases, Minerals, AqueousKinetics,
     Isotopes, DatabaseBlock
 )
+from importlib.metadata import version
 import os
 
 
@@ -118,7 +119,8 @@ class InputFile:
         full_path = os.path.join(path, filename)
         with open(full_path, 'w') as file:
             file.write('! CrunchFlow input file\n')
-            file.write('! Generated automatically by python-crunchflow \n')
+            cf_version = version("crunchflow")
+            file.write('! Generated automatically by python-crunchflow v%s\n' % cf_version)
             file.write(str(self) + "\n")
 
         # Update PestControl.ant if requested
@@ -162,7 +164,8 @@ class InputFile:
 
         # Some attributes can be set multiple times within a single block
         multiply_defined = ['time_series', 'pressure', 'mineral',
-                            'primary', 'D_25', 'tortuosityMP']
+                            'primary', 'D_25', 'tortuosityMP',
+                            'permeability_x', 'permeability_y', 'permeability_z']
 
         # List of condition attributes that are not species
         condition_attributes = ['units', 'equilibrate_surface', 'temperature',
