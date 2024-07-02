@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -17,21 +18,38 @@ def get_ts_coords(tsfile):
     -------
     coords : tuple of int
         Coordinates of the form (x, y, z)"""
-    
+
     # Open the file and read in the first line
     with open(tsfile) as f:
-        for i, line in enumerate(f):
-            if i == 0:
-                fields = line.split()[-3:]
-                
-                # Final 3 fields are x, y, and z
-                x = int(fields[0])
-                y = int(fields[1])
-                z = int(fields[2])
-    
-    # Return tuple
-    coords = (x, y, z)
-    
+        firstline = f.readline()
+        if 'Flux weighted' in firstline:
+            # First split on colon
+            coord_str = firstline.split(':')[-1]
+
+            # Then split on both space and hyphen. Sometimes CrunchFlow outputs
+            # these coordinates as "1-100" and sometimes as "1- 100"
+            raw_coord_list = re.split(r'[-\s]', coord_str)
+
+            # Remove empty strings
+            coord_list = [x for x in raw_coord_list if x]
+
+            if len(coord_list) == 6:
+                coords = ('%s-%s' % (coord_list[0], coord_list[1]),
+                          '%s-%s' % (coord_list[2], coord_list[3]),
+                          '%s-%s' % (coord_list[4], coord_list[5]))
+            else:
+                coords = coord_str
+
+        else:
+            # Final 3 fields are x, y, and z
+            fields = firstline.split()[-3:]
+            x = int(fields[0])
+            y = int(fields[1])
+            z = int(fields[2])
+
+            # Return tuple
+            coords = (x, y, z)
+
     return coords
 
 
