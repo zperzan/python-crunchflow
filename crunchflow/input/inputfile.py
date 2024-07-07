@@ -132,7 +132,7 @@ class InputFile:
         if update_pestcontrol:
             folder = os.path.dirname(full_path)
             pestfile = os.path.join(folder, 'PestControl.ant')
-            with open('PestControl.ant', 'w') as file:
+            with open(pestfile, 'w') as file:
                 file.write('%s \n' % os.path.basename(full_path))
 
     @classmethod
