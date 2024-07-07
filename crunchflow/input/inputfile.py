@@ -63,7 +63,7 @@ class InputFile:
         # Initialize other blocks as needed
 
     def set_block(self, block_name, parameters):
-        """Set the parameters for a block in the Run instance.
+        """Set the parameters of a block in an InputFile instance.
 
         Parameters
         ----------
@@ -114,7 +114,12 @@ class InputFile:
             The path to the output file. Default is the current directory.
         update_pestcontrol : bool, optional
             Whether to update PestControl.ant with the name of the
-            CrunchFlow input file. Default is False."""
+            CrunchFlow input file. Default is False.
+
+        Returns
+        -------
+        None
+            The CrunchFlow input file is saved to disk."""
 
         full_path = os.path.join(path, filename)
         with open(full_path, 'w') as file:
