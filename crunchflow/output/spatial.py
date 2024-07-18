@@ -197,6 +197,29 @@ class SpatialProfile:
         Get line segments that outline all the regions equal to 
         the provided value.
 
+    __init__(fileprefix, folder, output_times, suffix)
+    Read in and get basic info about all .tec files matching `fileprefix`.
+        For example, `tec('volume')` will read in all files matching
+        'volume[0-9]+.tec'
+
+        Parameters
+        ----------
+        fileprefix : str
+            file prefix of the tec file to read in, without the timestep
+            number or ".tec" file ending. For example, if your files are
+            "volume1.tec", "volume2.tec", etc., then fileprefix should be
+            "volume".
+        folder : str, optional
+            folder in which the .tec files are located. The default is the
+            current directory
+        output_times : list of float, optional
+            list of the actual output times at which the .tec files were
+            output, in CrunchFlow time units
+        suffix : str, optional
+            file ending of the tec files to read in. This can vary depending on the
+            version of CrunchTope used. The default is '.tec', but '.out' is also
+            tried if '.tec' files are not found.
+
     Examples
     --------
     >>> vol = SpatialProfile('volume')
@@ -207,7 +230,7 @@ class SpatialProfile:
     
     def __init__(self, fileprefix, folder='.', output_times=None, suffix='.tec'):
         """Read in and get basic info about all .tec files matching `fileprefix`.
-        For example, `tec('volume')` will read in all files matching 
+        For example, `SpatialProfile('volume')` will read in all files matching
         'volume[0-9]+.tec'
         
         Parameters
@@ -217,13 +240,13 @@ class SpatialProfile:
             number or ".tec" file ending. For example, if your files are
             "volume1.tec", "volume2.tec", etc., then fileprefix should be
             "volume".
-        folder : str
+        folder : str, optional
             folder in which the .tec files are located. The default is the 
             current directory
-        output_times : list of float 
+        output_times : list of float, optional
             list of the actual output times at which the .tec files were 
             output, in CrunchFlow time units
-        suffix : str
+        suffix : str, optional
             file ending of the tec files to read in. This can vary depending on the
             version of CrunchTope used. The default is '.tec', but '.out' is also
             tried if '.tec' files are not found.
