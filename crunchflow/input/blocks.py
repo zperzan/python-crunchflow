@@ -476,7 +476,7 @@ class Gases(SpeciesBlock):
     pass
 
 
-class KineticsBlock(KeywordBlock):
+class SurfaceComplexation(KeywordBlock):
     def __init__(self):
         super().__init__()
         self.species = []
@@ -494,8 +494,43 @@ class KineticsBlock(KeywordBlock):
         return "\n".join(result)
 
 
-class SurfaceComplexation(KineticsBlock):
-    pass
+class KineticsBlock(KeywordBlock):
+    def __init__(self):
+        super().__init__()
+        self.species_dict = {}
+        self.species = []
+
+    def set_parameters(self, parameters):
+        for species, details in parameters.items():
+            label = details.pop('label', None)
+            if species not in self.species_dict:
+                self.species_dict[species] = {}
+                self.species.append(species)
+            if label:
+                self.species_dict[species][label] = details
+            else:
+                self.species_dict[species]['default'] = details
+
+    def update_parameters(self, species, label, new_details):
+        if species in self.species_dict and label in self.species_dict[species]:
+            self.species_dict[species][label].update(new_details)
+        else:
+            print(f"Species '{species}' with label '{label}' not found.")
+
+    def __str__(self):
+        result = []
+        for species, labels in self.species_dict.items():
+            if 'default' in labels and not labels['default']:
+                result.append(f"{species:<20}")
+            else:
+                for label, details in labels.items():
+                    if label == 'default' and not details:
+                        result.append(f"{species:<20}")
+                    else:
+                        details_str = ' '.join(f'-{k} {v}' for k, v in details.items())
+                        label_str = f"-label {label} " if label != 'default' else ""
+                        result.append(f"{species:<20} {label_str}{details_str}")
+        return "\n".join(result)
 
 
 class Minerals(KineticsBlock):

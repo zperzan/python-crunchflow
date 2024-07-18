@@ -93,11 +93,9 @@ class InputFile:
                         # Note that the "CONDITION  <name>" is included in
                         # Condition.__str__ method, so it is omitted here
                         result.append(f"{str(condition)}\nEND")
-            # elif isinstance(value, list):
-            #     for item in value:
-            #         if any(val for val in item.__dict__.values() if val):
-            #             block_name = format_class_name(item.__class__.__name__)
-            #             result.append(f"{block_name}\n{str(item)}\nEND")
+
+            # Otherwise, check if the block has any attributes set
+            # and if so, format the block name then print it
             elif any(val for val in value.__dict__.values() if val):
                 block_name = format_class_name(value.__class__.__name__)
                 result.append(f"{block_name}\n{str(value)}\nEND")
@@ -165,7 +163,7 @@ class InputFile:
         # Define attributes and blocks to be handled as special cases
         # SpeciesBlock and KineticsBlock instances are handled differently below
         species_blocks = ['primary_species', 'secondary_species', 'gases']
-        kinetics_blocks = ['minerals', 'aqueous_kinetics', 'surface_complexation']
+        kinetics_blocks = ['minerals', 'aqueous_kinetics']
 
         # Some attributes can be set multiple times within a single block
         multiply_defined = ['time_series', 'pressure', 'mineral',
@@ -234,12 +232,34 @@ class InputFile:
                     parts = line.split()
                     current_block.species.append(parts[0])
 
-                elif current_block_name in kinetics_blocks:
+                elif current_block_name == 'surface_complexation':
                     parts = line.split()
                     species = parts[0]
                     details = " ".join(parts[1:]) if len(parts) > 1 else ""
                     current_block.species.append(species)
                     current_block.species_dict[species] = details
+
+                elif current_block_name in kinetics_blocks:
+                    parts = line.split()
+                    species = parts[0]
+                    details = {}
+
+                    # Assume the default label
+                    # This will be updated below if it is included in details
+                    label = 'default'
+
+                    # If there are details associated with the species_dict, then parse them
+                    if len(parts) > 1:
+                        # Loop through kinetic options (e.g., -activation, -rate, etc.)
+                        # and store this information in a dictionary
+                        for i in range(1, len(parts), 2):
+                            key = parts[i].lstrip('-')
+                            value = parts[i+1] if (i+1) < len(parts) else None
+                            if key == 'label':
+                                label = value
+                            else:
+                                details[key] = value
+                    current_block.set_parameters({species: {**details, 'label': label}})
 
                 # All other blocks, split on whitespace
                 else:
