@@ -1,0 +1,10 @@
+TITLE
+Example input file that contains a Minerals block with multiple reactions for a single mineral
+END
+ 
+MINERALS
+Calcite
+Barite     -label default -rate -4.5   -activation 1.0
+Barite     -label h+      -rate -2.5   -activation 0.0
+END
+ 

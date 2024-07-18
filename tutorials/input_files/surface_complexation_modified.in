@@ -1,0 +1,223 @@
+TITLE
+Problem 3: multi-component surface complexation
+END
+ 
+RUNTIME
+time_units        years
+timestep_max      .1
+timestep_init     1.0E-14
+time_tolerance    0.005
+correction_max    2.0
+debye-huckel      true
+database_sweep    false
+speciate_only     false
+database          datacom.dbs
+screen_output     100
+!!Turn girt to false to use OS3D
+gimrt             true
+new_crunch_feature true
+END
+
+
+FLOW
+time_units      years
+distance_units  meters
+!!constant_flow   10 
+calculate_flow   true
+permeability_x   1.0E-13  default
+pressure         300000     default   
+pressure         300000     zone 0-0     1-1 1-1 fix 
+pressure         0          zone 401-401 1-1 1-1 fix
+END
+
+TRANSPORT
+distance_units       centimeters
+time_units           seconds
+fix_diffusion        0.919E-05
+formation_factor         1.0  
+cementation_exponent     1.0
+dispersivity          10
+END
+
+SURFACE_COMPLEXATION
+!using electrostatic model
+>FeOH_strong  on Fe(OH)3
+END
+
+OUTPUT 
+spatial_profile     1 4
+time_series_print   H+ Tracer SiO2(aq) Na+ Ca++ CO2(aq) pH UO2++ Zn++ Pb++ Hg++
+time_series         totconhistory1.txt  100 1 1
+time_series         totconhistory2.txt  300 1 1
+END
+ 
+MINERALS
+Fe(OH)3                 -label default  -rate  -55   !set to be non-reactive     
+Quartz                  -label default  -rate  -55   !set to be non-reactive   
+END
+ 
+GASES
+CO2(g)
+END
+
+PRIMARY_SPECIES
+H+
+CO2(aq)
+Mg++
+Ca++
+Na+
+Fe+++
+SiO2(aq)
+Cl-
+UO2++
+Zn++
+Pb++
+Hg++
+Tracer
+END
+ 
+TEMPERATURE
+set_temperature 25
+END
+ 
+DISCRETIZATION
+xzones 400 0.25
+END
+ 
+BOUNDARY_CONDITIONS
+X_begin   Minewater      flux
+X_end     Groundwater    flux
+Y_begin   Groundwater    flux
+Y_end     Groundwater    flux
+END
+ 
+INITIAL_CONDITIONS
+Groundwater 1-400
+END
+ 
+
+Condition Minewater
+temperature      25
+pH                                 8.5
+CO2(aq)                            CO2(g)  0.001
+Mg++                               1E-4
+Ca++                               9E-5
+Na+                                charge
+Fe+++                              1E-19
+SiO2(aq)                           1E-7
+Cl-                                1E-4
+Tracer                             1E-4
+UO2++                              1E-4
+Zn++                               1E-4
+Pb++                               1E-4
+Hg++                               1E-4
+!! Minerals                     !!Volume Fraction   !!Specific Surface Area (m2/g)
+!! Note that even though this is an inlet fluid the code needs the surface complexes to converge so we provide a small concentration
+Fe(OH)3                            1E-20    ssa   1e-10  
+>FeOH_strong                       1E-20                 
+END
+
+Condition Groundwater
+temperature      25
+pH                                 7.5
+CO2(aq)                            CO2(g)  0.0001
+Mg++                               1E-4
+Ca++                               9E-5
+Na+                                1E-4
+Fe+++                              1E-19
+SiO2(aq)                           1E-7
+Cl-                                charge
+Tracer                             1E-30
+UO2++                              1E-9 equilibrate_surface
+Zn++                               1E-9 equilibrate_surface
+Pb++                               1E-9 equilibrate_surface
+Hg++                               1E-9 equilibrate_surface
+!! Minerals                     !!Volume Fraction   !!Specific Surface Area (m2/g)
+Quartz                             0.700        ssa   1
+Fe(OH)3                            0.0005 ssa 600.0  surface
+!!Site name     <site density mol/m**2>    
+>FeOH_strong     9.259259E-08                 
+END
+
+SECONDARY_SPECIES                                                           
+(UO2)2(OH)2++                                                           
+(UO2)2OH+++                                                             
+(UO2)3(OH)4++                                                           
+(UO2)3(OH)5+                                                            
+(UO2)3(OH)7-                                                            
+(UO2)4(OH)7+                                                            
+HCO3-                                                                   
+CaCl+                                                                   
+CaCl2(aq)                                                               
+CaOH+                                                                   
+Fe(OH)2+                                                                
+Fe(OH)3(aq)                                                             
+Fe(OH)4-                                                                
+Fe2(OH)2++++                                                            
+Fe3(OH)4(5+)                                                            
+FeCl++                                                                  
+FeCl2+                                                                  
+FeCl4-                                                                  
+FeOH++                                                                  
+H2SiO4--                                                                
+H4(H2SiO4)4----                                                         
+H6(H2SiO4)4--                                                           
+HCl(aq)                                                                 
+HSiO3-                                                                  
+Mg4(OH)4++++                                                            
+MgCl+                                                                   
+NaCl(aq)                                                                
+NaHSiO3(aq)                                                             
+NaOH(aq)                                                                
+OH-                                                                     
+Pb(OH)2(aq)                                                             
+Pb(OH)3-                                                                
+Pb2OH+++                                                                
+Pb3(OH)4++                                                              
+Pb4(OH)4++++                                                            
+Pb6(OH)8++++                                                            
+PbCl+                                                                   
+PbCl2(aq)                                                               
+PbCl3-                                                                  
+PbCl4--                                                                 
+PbOH+                                                                   
+UO2(OH)2(aq)                                                            
+UO2(OH)3-                                                               
+UO2(OH)4--                                                              
+UO2Cl+                                                                  
+UO2Cl2(aq)                                                              
+UO2OH+                                                                  
+Zn(OH)2(aq)                                                             
+Zn(OH)3-                                                                
+Zn(OH)4--                                                               
+Zn(OH)Cl(aq)                                                            
+ZnCl+                                                                   
+ZnCl2(aq)                                                               
+ZnCl3-                                                                  
+ZnCl4--                                                                 
+ZnOH+                                                                   
+(UO2)11(CO3)6(OH)12--                                                   
+(UO2)2CO3(OH)3-                                                         
+(UO2)3(CO3)6(6-)                                                        
+(UO2)3(OH)5CO2+                                                         
+(UO2)3O(OH)2(HCO3)+                                                     
+CO3--                                                                   
+CaCO3(aq)                                                               
+CaHCO3+                                                                 
+FeCO3+                                                                  
+MgCO3(aq)                                                               
+MgHCO3+                                                                 
+NaCO3-                                                                  
+NaHCO3(aq)                                                              
+Pb(CO3)2--                                                              
+PbCO3(aq)                                                               
+UO2(CO3)2--                                                             
+UO2(CO3)3----                                                           
+UO2CO3(aq)                                                              
+ZnCO3(aq)                                                               
+ZnHCO3+  
+END
+
+!POROSITY
+!porosity_update false
+!END
