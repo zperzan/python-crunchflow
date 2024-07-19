@@ -46,6 +46,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # Define directory for autoapi extension
 autoapi_dirs = ['../crunchflow']
+autoapi_template_dir = "_templates/autoapi"
 
 # -- Options for HTML output -------------------------------------------------
 
