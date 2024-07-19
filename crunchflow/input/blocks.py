@@ -62,7 +62,7 @@ class Runtime(KeywordBlock):
         self.coordinate = ''
         self.coordinates = ''
         self.correction_max = ''
-        self.Courant_number = ''
+        self.courant_number = ''
         self.database = ''
         self.database_sweep = ''
         self.debye_huckel = ''
