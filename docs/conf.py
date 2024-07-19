@@ -12,18 +12,16 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../crunchflow'))
-
+sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'python-crunchflow'
-copyright = '2020, Zach Perzan'
+copyright = '2024, Zach Perzan'
 author = 'Zach Perzan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.3'
-
+release = '2.0.3'
 
 # -- General configuration ---------------------------------------------------
 
@@ -34,7 +32,9 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.intersphinx', 
               'sphinx.ext.mathjax', 
               'sphinx.ext.viewcode',
-              'numpydoc']
+              'numpydoc',
+              'nbsphinx',
+              'autoapi.extension']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -44,6 +44,8 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+# Define directory for autoapi extension
+autoapi_dirs = ['../crunchflow']
 
 # -- Options for HTML output -------------------------------------------------
 

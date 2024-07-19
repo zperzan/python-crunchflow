@@ -1,4 +1,6 @@
-numpy>=1.14.5
-matplotlib
-pandas
+numpy>=2.0.0
+matplotlib>=3.7.0
+pandas>=2.2.2
 numpydoc
+ipykernel
+nbsphinx
