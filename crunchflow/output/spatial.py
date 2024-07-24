@@ -43,11 +43,11 @@ def get_tec_metadata(file, folder='.'):
     inpath = os.path.join(folder, file)
     with open(inpath) as f:
         # Read the first line to determine the format of the file
-        line = f.readline()
-        if "TITLE" in line:
-            title = line.split('"')[1]
+        title_line = f.readline()
+        if "TITLE" in title_line:
+            title = title_line.split('"')[1]
             fmt = '.tec'
-        elif 'Time' in line:
+        elif 'Time' in title_line:
             title = ''
             fmt = '.out'
         else:
@@ -70,7 +70,9 @@ def get_tec_metadata(file, folder='.'):
             for col in remove_fields:
                 columns.remove(col)
         elif fmt == '.out':
-            line = f.readline()  # skip units line
+            # pH files do not have a units line
+            if 'pH' not in file:
+                units_line = f.readline()  # skip units line
             line = f.readline()
 
             # Split on whitespace

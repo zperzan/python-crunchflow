@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 from crunchflow.output.spatial import SpatialProfile
 
+
 def test_cationexchange():
     totcon = SpatialProfile('totcon', folder='tests/data/cation_exchange')
     exchange = SpatialProfile('exchange', folder='tests/data/cation_exchange')
@@ -30,6 +31,7 @@ def test_cationexchange():
     assert np.allclose(totcon.coords, correct_coords, atol=1e-3), 'Incorrectly read totcon coordinates'
     assert np.allclose(ex_arr, correct_ex_arr, atol=1e-3), 'Incorrectly read exchange data'
     assert np.allclose(conc_arr, correct_conc_arr, atol=1e-3), 'Incorrectly read totcon data'
+
 
 def test_wrr_floodplain():
     volume = SpatialProfile('volume', folder='tests/data/wrr_floodplain_redox')
@@ -59,6 +61,7 @@ def test_wrr_floodplain():
     assert np.allclose(calcite, correct_calcite, atol=1e-3), 'Incorrectly read calcite data'
     assert np.allclose(perm_arr, correct_perm, atol=1e-3), 'Incorrectly read permeability data'
 
+
 def test_flow2d():
     rate = SpatialProfile('rate', folder='tests/data/flow2d')
     totmineral = SpatialProfile('TotMineral', folder='tests/data/flow2d')
@@ -80,6 +83,15 @@ def test_flow2d():
     for col in rate.columns:
         data = rate.extract(col)
         assert data.dtype == np.float64, 'Incorrect data type in rate file'
+
+
+def test_phread():
+    ph = SpatialProfile('pH', folder='tests/data/output_files')
+
+    assert ph.fmt == '.out', 'Could not determine pH file format'
+    assert ph.times == [1, 2, 3, 4, 5], 'Incorrectly read number of pH files'
+    assert ph.columns == ['Distance', 'pH'], 'Incorrectly read columns from pH files'
+
 
 if __name__ == "__main__":
     pytest.main()
