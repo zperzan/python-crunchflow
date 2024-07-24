@@ -93,5 +93,20 @@ def test_phread():
     assert ph.columns == ['Distance', 'pH'], 'Incorrectly read columns from pH files'
 
 
+def test_readdat():
+    velocity = SpatialProfile('velocity', folder='tests/data/output_files')
+    correct_coords = np.load('tests/data/output_files/correct_coords.npy')
+    correct_velocity = np.load('tests/data/output_files/correct_velocity.npy')
+    correct_columns = ['X Velocity', 'Y Velocity']
+
+    assert velocity.fmt == '.dat', 'Could not determine velocity1.dat file format'
+    assert velocity.nx == 100, 'Incorrectly read nx from velocity1.dat file'
+    assert velocity.ny == 60, 'Incorrectly read ny from velocity1.dat file'
+    assert velocity.times == [1], 'Incorrectly read number of velocity1.dat files'
+    assert velocity.columns == correct_columns, 'Incorrectly read columns from velocity1.dat file'
+    assert np.allclose(velocity.coords, correct_coords, atol=1e-3), 'Incorrectly read velocity1.dat coordinates'
+    assert np.allclose(velocity.extract('X Velocity', 1), correct_velocity, atol=1e-3), 'Incorrectly read velocity1.dat data'
+
+
 if __name__ == "__main__":
     pytest.main()

@@ -42,21 +42,24 @@ def get_tec_metadata(file, folder='.'):
     # Open file and read line by line
     inpath = os.path.join(folder, file)
     with open(inpath) as f:
+        lines = f.readlines()
+
         # Read the first line to determine the format of the file
-        title_line = f.readline()
-        if "TITLE" in title_line:
-            title = title_line.split('"')[1]
+        if "TITLE" in lines[0]:
+            title = lines[0].split('"')[1]
             fmt = '.tec'
-        elif 'Time' in title_line:
+        elif 'Time' in lines[0]:
             title = ''
             fmt = '.out'
+        elif 'Units' in lines[0]:
+            title = ''
+            fmt = '.dat'
         else:
             raise ValueError("Could not determine the format of this file")
 
         # Read the rest of the header
         if fmt == '.tec':
-            line = f.readline()
-            columns = line.split('"')
+            columns = lines[1].split('"')
 
             # Remove x, y, z
             columns = [col.strip() for col in columns]
@@ -71,12 +74,13 @@ def get_tec_metadata(file, folder='.'):
                 columns.remove(col)
         elif fmt == '.out':
             # pH files do not have a units line
-            if 'pH' not in file:
-                units_line = f.readline()  # skip units line
-            line = f.readline()
+            if 'pH' in file:
+                columns_line = lines[1]  # skip units line
+            else:
+                columns_line = lines[2]
 
             # Split on whitespace
-            raw_cols = line.split()
+            raw_cols = columns_line.split()
 
             # Some versions of CrunchFlow don't include column names
             # in this case, the column entries should be numeric and we'll
@@ -85,6 +89,35 @@ def get_tec_metadata(file, folder='.'):
                 columns = ['col%d' % i for i in range(len(raw_cols))]
             else:
                 columns = raw_cols
+
+        elif fmt == '.dat':
+            title = lines[1].split('"')[1]
+            columns = lines[2].split('"')
+
+            # Remove x, y, z
+            columns = [col.strip() for col in columns]
+            for col in ['VARIABLES =']:
+                if col in columns:
+                    columns.remove(col)
+
+            # Remove commas, which can be repeated so will not be removed with loop above
+            columns = [col.replace(',', '') for col in columns]
+
+            # Remove whitespace, which was reduced to len 0 via col.strip()
+            remove_fields = [col for col in columns if len(col) == 0]
+            for col in remove_fields:
+                columns.remove(col)
+
+            # With .dat files, the naming scheme for x, y and z varies
+            # depending on the spatial units
+            if len(lines[3].split(',')) == 3:
+                # then this is 2d, so remove first two columns
+                columns = columns[2:]
+            elif len(lines[3].split(',')) == 4:
+                # then this is 3d, so remove first three columns
+                columns = columns[3:]
+            else:
+                raise ValueError("Could not determine the format of this file")
 
     return columns, title, fmt
 
@@ -250,19 +283,22 @@ class SpatialProfile:
             output, in CrunchFlow time units
         suffix : str, optional
             file ending of the tec files to read in. This can vary depending on the
-            version of CrunchTope used. The default is '.tec', but '.out' is also
-            tried if '.tec' files are not found.
+            version of CrunchTope used. The default is '.tec', but '.out' and '.dat'
+            are also tried if '.tec' files are not found.
         """
              
         # Glob doesn't support regex, so match manually using re and os
         search_str = '^' + fileprefix + '[0-9]+%s' % suffix
         unsort_files = [f for f in os.listdir(folder) if re.search(search_str, f)]
 
+        # Try again with .out or .dat suffix
         if len(unsort_files) == 0:
-            # Try again with .out suffix
-            search_str = '^' + fileprefix + '[0-9]+.out'
-            unsort_files = [f for f in os.listdir(folder) if re.search(search_str, f)]
-            suffix = '.out'
+            for try_suffix in ['.out', '.dat']:
+                search_str = '^' + fileprefix + '[0-9]+' + try_suffix
+                unsort_files = [f for f in os.listdir(folder) if re.search(search_str, f)]
+                if len(unsort_files) > 0:
+                    suffix = try_suffix
+                    break
 
         if len(unsort_files) == 0:
             raise ValueError("No files found matching %s. Double check the suffix and\n "
@@ -288,7 +324,7 @@ class SpatialProfile:
             # Otherwise, try setting it by reading from each .out file
             if self.fmt == '.out':
                 self.output_times = [get_out_output_time(f) for f in self.files]
-            elif self.fmt == '.tec':
+            elif self.fmt in ['.tec', '.dat']:
                 self.output_times = None
 
         # Get the grid size
@@ -323,6 +359,24 @@ class SpatialProfile:
             else:
                 skiprows = 3
             self.coords = np.loadtxt(self.files[0], skiprows=skiprows, usecols=[0])
+        elif self.fmt == '.dat':
+            with open(self.files[0]) as f:
+                lines = f.readlines()
+
+                fields = lines[3].split(',')[1:]
+                if len(fields) == 2:
+                    self.nx = int(re.sub('\\D', '', fields[0]))
+                    self.ny = int(re.sub('\\D', '', fields[1]))
+                    self.nz = np.nan
+                elif len(fields) == 3:
+                    self.nx = int(re.sub('\\D', '', fields[0]))
+                    self.ny = int(re.sub('\\D', '', fields[1]))
+                    self.nz = int(re.sub('\\D', '', fields[2]))
+                else:
+                    raise ValueError("Could not determine the coordinates in this file")
+            self.coords = np.loadtxt(self.files[0], skiprows=4, usecols=[0, 1])
+            self.griddedX = self.coords[:, 0].reshape(self.ny, self.nx)
+            self.griddedY = self.coords[:, 1].reshape(self.ny, self.nx)
 
     def plot(self, var, time=None, plot_type='image', figsize=(12,3), 
              **kwargs):
@@ -586,6 +640,16 @@ class SpatialProfile:
                     skiprows = 3
             col_no = self.columns.index(var)
             data = np.loadtxt(self.files[time - 1], skiprows=skiprows, usecols=col_no)
+        elif self.fmt == '.dat':
+            if np.isnan(self.nz):
+                col_no = self.columns.index(var) + 2
+                data = np.loadtxt(self.files[time - 1], skiprows=4, usecols=col_no)
+                data = data.reshape(self.ny, self.nx)
+            else:
+                col_no = self.columns.index(var) + 3
+                data = np.loadtxt(self.files[time - 1], skiprows=4, usecols=col_no)
+                data = data.reshape(self.nz, self.ny, self.nx)
+
         else:
             raise ValueError("Could not determine the format of this file")
 
