@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crunchflow"
-version = "2.0.3"
+version = "2.0.4"
 description = "A Python toolbox for working with the CrunchFlow reactive transport code"
 authors = ["Zach Perzan <zach.perzan@unlv.edu>"]
 license = "GPL-3.0-or-later"
