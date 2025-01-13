@@ -57,6 +57,7 @@ class DatabaseBlock(KeywordBlock):
 class Runtime(KeywordBlock):
     def __init__(self):
         super().__init__()
+        self.aqueousdatabase = ''
         self.Benchmark = ''
         self.ChromeTopes = ''
         self.coordinate = ''
@@ -245,6 +246,7 @@ class Transport(KeywordBlock):
         self.cementation_exponent = ''
         self.constant_tortuosity = ''
         self.diffusion_activation = ''
+        self.dispersion = ''
         self.dispersivity = ''
         self.distance_units = ''
         self.D_25 = []
@@ -360,6 +362,7 @@ class Porosity(KeywordBlock):
         super().__init__()
         self.fix_microporosity = ''
         self.fix_porosity = ''
+        self.mineral_update = ''
         self.minimum_porosity = ''
         self.MultiplyPorosityTortuosity = ''
         self.porosity_exponent = ''
