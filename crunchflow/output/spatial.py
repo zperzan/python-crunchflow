@@ -621,6 +621,9 @@ class SpatialProfile:
         if var not in self.columns:
             raise ValueError('{} not found'.format(var))
         
+        if time not in self.times:
+            raise ValueError("Requested time ({}) not in {}".format(time, self.times))
+
         # Get column number of var to retrieve
         if self.fmt == '.tec':
             col_no = self.columns.index(var) + 3  # Add 3 because we deleted X, Y and Z cols
