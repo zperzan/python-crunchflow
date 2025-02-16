@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "python-crunchflow"
-copyright = "2024, Zach Perzan"
+copyright = "2025, Zach Perzan"
 author = "Zach Perzan"
 
 # The full version, including alpha/beta/rc tags
-release = "2.0.3"
+release = "2.0.5"
 
 # -- General configuration ---------------------------------------------------
 
