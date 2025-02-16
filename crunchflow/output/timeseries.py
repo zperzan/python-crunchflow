@@ -25,21 +25,23 @@ def get_ts_coords(tsfile):
     # Open the file and read in the first line
     with open(tsfile) as f:
         firstline = f.readline()
-        if 'Flux weighted' in firstline:
+        if "Flux weighted" in firstline:
             # First split on colon
-            coord_str = firstline.split(':')[-1]
+            coord_str = firstline.split(":")[-1]
 
             # Then split on both space and hyphen. Sometimes CrunchFlow outputs
             # these coordinates as "1-100" and sometimes as "1- 100"
-            raw_coord_list = re.split(r'[-\s]', coord_str)
+            raw_coord_list = re.split(r"[-\s]", coord_str)
 
             # Remove empty strings
             coord_list = [x for x in raw_coord_list if x]
 
             if len(coord_list) == 6:
-                coords = ('%s-%s' % (coord_list[0], coord_list[1]),
-                          '%s-%s' % (coord_list[2], coord_list[3]),
-                          '%s-%s' % (coord_list[4], coord_list[5]))
+                coords = (
+                    "%s-%s" % (coord_list[0], coord_list[1]),
+                    "%s-%s" % (coord_list[2], coord_list[3]),
+                    "%s-%s" % (coord_list[4], coord_list[5]),
+                )
             else:
                 coords = coord_str
 
@@ -96,7 +98,7 @@ def get_ts_duplicates(tsfile):
 
     # Total number of columns in the file, including duplicates
     totcols = len(columns)
-    nondup_indices = list(range(totcols)) # List of non-duplicated indices
+    nondup_indices = list(range(totcols))  # List of non-duplicated indices
 
     # Delete each duplicate, but reverse sort to avoid throwing off indices
     # after deleting earlier elements
@@ -112,9 +114,10 @@ class timeseries:
     with CrunchFlow time series output files.
     """
 
-    def __init__(self, tsfile, folder='.'):
-        raise DeprecationWarning("The crunchflow.output.timeseries class has been deprecated. "
-                                 "Use crunchflow.output.TimeSeries instead.")
+    def __init__(self, tsfile, folder="."):
+        raise DeprecationWarning(
+            "The crunchflow.output.timeseries class has been deprecated. Use crunchflow.output.TimeSeries instead."
+        )
 
 
 class TimeSeries:
@@ -154,7 +157,7 @@ class TimeSeries:
     >>> ts.plot('Ca++')
     """
 
-    def __init__(self, tsfile, folder='.'):
+    def __init__(self, tsfile, folder="."):
         """Read in and get basic info about the timeseries file `tsfile`.
 
         Parameters
@@ -190,28 +193,27 @@ class TimeSeries:
 
         # Set time and concentration units
         t = self.columns[0]
-        self.timeunit = t[t.find("(")+1:t.find(")")]
-        self.unit = 'mol/L'
+        self.timeunit = t[t.find("(") + 1 : t.find(")")]
+        self.unit = "mol/L"
 
         # Load data into numpy array
-        self.data = np.genfromtxt(tsfilepath, skip_header=2, usecols=indices,
-                                  missing_values=['Infinity', 'NaN', '-Infinity'])
+        self.data = np.genfromtxt(
+            tsfilepath, skip_header=2, usecols=indices, missing_values=["Infinity", "NaN", "-Infinity"]
+        )
 
         # If necessary, convert from log to real format
         if logformat:
-            if self.columns[1] != 'pH':
-                self.data[:, 1:] = 10**self.data[:, 1:]
+            if self.columns[1] != "pH":
+                self.data[:, 1:] = 10 ** self.data[:, 1:]
             else:
                 # Skip first two cols, which are time and pH
-                self.data[:, 2:] = 10**self.data[:, 2:]
+                self.data[:, 2:] = 10 ** self.data[:, 2:]
 
         # Load into a pandas dataframe as well
-        self.df = pd.DataFrame(data=self.data[:, 1:],
-                               index=self.data[:, 0],
-                               columns=self.species)
-        self.df.index.name = 'time'
+        self.df = pd.DataFrame(data=self.data[:, 1:], index=self.data[:, 0], columns=self.species)
+        self.df.index.name = "time"
 
-    def convert_mgL(self, database='datacom.dbs', folder='.', warnings=True):
+    def convert_mgL(self, database="datacom.dbs", folder=".", warnings=True):
         """Convert time series concentrations from mol/kgw to mg/L (ppm).
         Note that this assumes that 1 kg water = 1 L water.
 
@@ -231,12 +233,12 @@ class TimeSeries:
         databasepath = os.path.join(folder, database)
 
         # If units are already mg/L, no need to do anything
-        if self.unit == 'mg/L':
+        if self.unit == "mg/L":
             return
 
         # Check if database exists
         if not os.path.exists(databasepath):
-            raise OSError('Could not find ' + databasepath)
+            raise OSError("Could not find " + databasepath)
 
         molar_mass = {}
 
@@ -255,23 +257,23 @@ class TimeSeries:
         for key, value in molar_mass.items():
             if value == 0:
                 del_keys.append(key)  # Cannot delete key within loop, otherwise
-                                      # it changes size on each iteration
+                # it changes size on each iteration
         for key in del_keys:
             del molar_mass[key]
 
         for spec in self.species:
             if spec not in molar_mass.keys():
                 if warnings:
-                    print('Warning -- Did not convert {} to mg/L'.format(spec))
+                    print("Warning -- Did not convert {} to mg/L".format(spec))
             else:
                 idx = self.columns.index(spec)
                 # Only need to convert .data since .data and .df are linked
-                self.data[:, idx] = self.data[:, idx]*molar_mass[spec]*1000
+                self.data[:, idx] = self.data[:, idx] * molar_mass[spec] * 1000
 
         # Update the unit attribute
-        self.unit = 'mg/L'
+        self.unit = "mg/L"
 
-    def plot(self, species, units='mg/L', **kwargs):
+    def plot(self, species, units="mg/L", **kwargs):
         """Plot the time series of one or more species.
 
         Parameters
@@ -290,12 +292,14 @@ class TimeSeries:
         ax : pyplot object
             axis handle for current plot
         """
-        if units == 'mg/L' and self.unit != 'mg/L':
+        if units == "mg/L" and self.unit != "mg/L":
             # Raise error if cannot find datacom.dbs
-            if not os.path.exists('./datacom.dbs'):
-                raise OSError('Could not find default database. \
+            if not os.path.exists("./datacom.dbs"):
+                raise OSError(
+                    "Could not find default database. \
                 Plot with other units or convert to mg/L first using the \
-                convert_mgL method. See convert_mgL.__doc__ for more info.')
+                convert_mgL method. See convert_mgL.__doc__ for more info."
+                )
 
             self.convert_mgL()
 
@@ -305,16 +309,14 @@ class TimeSeries:
 
         fig, ax = plt.subplots(**kwargs)
 
-
         for spec in species:
             ax.plot(self.df.index, self.df[spec], label=spec)
 
-        ax.set(xlabel='Time ({})'.format(self.timeunit),
-               ylabel='Concentration ({})'.format(units))
+        ax.set(xlabel="Time ({})".format(self.timeunit), ylabel="Concentration ({})".format(units))
         ax.legend()
 
         return fig, ax
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(TimeSeries.__doc__)

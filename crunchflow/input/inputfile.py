@@ -48,12 +48,12 @@ def format_class_name(name):
 
     # DatabaseBlock is a special case, because we want to distinguish it from the
     # separate Database() class for manipulating databases
-    if name == 'DatabaseBlock':
+    if name == "DatabaseBlock":
         return "DATABASE"
     else:
         # Regex patter recognizes lower case followed by upper case, so
         # "InitialConditions" becomes "INITIAL_CONDITIONS"
-        return re.sub(r'(?<!^)(?=[A-Z])', '_', name).upper()
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", name).upper()
 
 
 class InputFile:
@@ -94,8 +94,8 @@ class InputFile:
         parameters : dict
             A dictionary of parameters to set for the block.
         """
-        if block_name == 'condition':
-            name = parameters.pop('name', None)
+        if block_name == "condition":
+            name = parameters.pop("name", None)
             if name:
                 condition = Condition(name)
                 condition.set_parameters(parameters)
@@ -124,7 +124,7 @@ class InputFile:
                 result.append(f"{block_name}\n{str(value)}\nEND")
         return "\n\n".join(result)
 
-    def save(self, filename, path='.', update_pestcontrol=False):
+    def save(self, filename, path=".", update_pestcontrol=False):
         """Write this CrunchFlow run to an input file.
 
         Parameters
@@ -143,21 +143,21 @@ class InputFile:
             The CrunchFlow input file is saved to disk.
         """
         full_path = os.path.join(path, filename)
-        with open(full_path, 'w') as file:
-            file.write('! CrunchFlow input file\n')
+        with open(full_path, "w") as file:
+            file.write("! CrunchFlow input file\n")
             cf_version = version("crunchflow")
-            file.write('! Generated automatically by python-crunchflow v%s\n' % cf_version)
+            file.write("! Generated automatically by python-crunchflow v%s\n" % cf_version)
             file.write(str(self) + "\n")
 
         # Update PestControl.ant if requested
         if update_pestcontrol:
             folder = os.path.dirname(full_path)
-            pestfile = os.path.join(folder, 'PestControl.ant')
-            with open(pestfile, 'w') as file:
-                file.write('%s \n' % os.path.basename(full_path))
+            pestfile = os.path.join(folder, "PestControl.ant")
+            with open(pestfile, "w") as file:
+                file.write("%s \n" % os.path.basename(full_path))
 
     @classmethod
-    def load(cls, filename, path='.', warnings=True):
+    def load(cls, filename, path=".", warnings=True):
         """Read a CrunchFlow input file and create a Run instance.
 
         Parameters
@@ -178,7 +178,7 @@ class InputFile:
         instance = cls()
         full_path = os.path.join(path, filename)
 
-        with open(full_path, 'r') as file:
+        with open(full_path, "r") as file:
             lines = file.readlines()
 
         current_block = None
@@ -186,17 +186,24 @@ class InputFile:
 
         # Define attributes and blocks to be handled as special cases
         # SpeciesBlock and KineticsBlock instances are handled differently below
-        species_blocks = ['primary_species', 'secondary_species', 'gases']
-        kinetics_blocks = ['minerals', 'aqueous_kinetics']
+        species_blocks = ["primary_species", "secondary_species", "gases"]
+        kinetics_blocks = ["minerals", "aqueous_kinetics"]
 
         # Some attributes can be set multiple times within a single block
-        multiply_defined = ['time_series', 'pressure', 'mineral',
-                            'primary', 'D_25', 'tortuosityMP',
-                            'permeability_x', 'permeability_y', 'permeability_z']
+        multiply_defined = [
+            "time_series",
+            "pressure",
+            "mineral",
+            "primary",
+            "D_25",
+            "tortuosityMP",
+            "permeability_x",
+            "permeability_y",
+            "permeability_z",
+        ]
 
         # List of condition attributes that are not species
-        condition_attributes = ['units', 'equilibrate_surface', 'temperature',
-                                'set_porosity', 'set_saturation']
+        condition_attributes = ["units", "equilibrate_surface", "temperature", "set_porosity", "set_saturation"]
 
         for line in lines:
             line = line.strip()
@@ -208,7 +215,7 @@ class InputFile:
             # (4) otherwise, we assume we are within a keyword block
 
             # Category (1): empty or commented lines
-            if line.startswith("!") or line.startswith('#') or not line:
+            if line.startswith("!") or line.startswith("#") or not line:
                 continue
 
             # Category (2): "END" line
@@ -221,16 +228,16 @@ class InputFile:
             if not current_block:
                 parts = line.split(maxsplit=2)
                 block_name = parts[0].lower()
-                if block_name == 'condition' and len(parts) > 1:
+                if block_name == "condition" and len(parts) > 1:
                     condition_name = parts[1]
                     condition = Condition(condition_name)
                     instance.conditions[condition_name] = condition
                     current_block = condition
-                    current_block_name = 'condition'
-                elif block_name == 'title':
+                    current_block_name = "condition"
+                elif block_name == "title":
                     current_block = instance.title
                     current_block_name = block_name
-                elif block_name == 'database':
+                elif block_name == "database":
                     current_block = instance.database_block
                     current_block_name = block_name
                 elif hasattr(instance, block_name):
@@ -243,20 +250,19 @@ class InputFile:
 
             # Category (4): within a keyword block
             if current_block and current_block_name:
-
                 # First, take care of the special cases: title, initial_conditions,
                 # database, species_blocks (see above) and kinetics_blocks (see above)
-                if current_block_name in ['title', 'database']:
+                if current_block_name in ["title", "database"]:
                     current_block.set_parameters(line)
 
-                elif current_block_name == 'initial_conditions':
+                elif current_block_name == "initial_conditions":
                     instance.initial_conditions.conditions.append(line.strip())
 
                 elif current_block_name in species_blocks:
                     parts = line.split()
                     current_block.species.append(parts[0])
 
-                elif current_block_name == 'surface_complexation':
+                elif current_block_name == "surface_complexation":
                     parts = line.split()
                     species = parts[0]
                     details = " ".join(parts[1:]) if len(parts) > 1 else ""
@@ -270,20 +276,20 @@ class InputFile:
 
                     # Assume the default label
                     # This will be updated below if it is included in details
-                    label = 'default'
+                    label = "default"
 
                     # If there are details associated with the species_dict, then parse them
                     if len(parts) > 1:
                         # Loop through kinetic options (e.g., -activation, -rate, etc.)
                         # and store this information in a dictionary
                         for i in range(1, len(parts), 2):
-                            key = parts[i].lstrip('-')
-                            value = parts[i+1] if (i+1) < len(parts) else None
-                            if key == 'label':
+                            key = parts[i].lstrip("-")
+                            value = parts[i + 1] if (i + 1) < len(parts) else None
+                            if key == "label":
                                 label = value
                             else:
                                 details[key] = value
-                    current_block.set_parameters({species: {**details, 'label': label}})
+                    current_block.set_parameters({species: {**details, "label": label}})
 
                 # All other blocks, split on whitespace
                 else:
@@ -292,13 +298,12 @@ class InputFile:
                         attribute = parts[0]
                         value = " ".join(parts[1:])
 
-                        if current_block_name != 'condition':
+                        if current_block_name != "condition":
                             # In everything but conditions block, replace hyphens
                             # with underscores
-                            attribute = attribute.replace('-', '_')
+                            attribute = attribute.replace("-", "_")
 
-                        if (current_block_name == 'condition' and
-                                attribute not in condition_attributes):
+                        if current_block_name == "condition" and attribute not in condition_attributes:
                             current_block.concentrations[attribute] = value
                             current_block.species.append(attribute)
                         elif attribute in multiply_defined:
@@ -311,25 +316,29 @@ class InputFile:
                             # and try to set the attribute with the correct capitalization
                             lower_attrs = [attr.lower() for attr in current_block.__dict__.keys()]
                             if attribute.lower() in lower_attrs:
-                                correct_attribute = [attr for attr in current_block.__dict__.keys()
-                                                     if attr.lower() == attribute.lower()][0]
+                                correct_attribute = [
+                                    attr for attr in current_block.__dict__.keys() if attr.lower() == attribute.lower()
+                                ][0]
                                 setattr(current_block, correct_attribute, value)
                             # If it still can't be found, issue a warning and save it in the
                             # "other" attribute of the KeywordBlock
                             else:
                                 if warnings:
-                                    print(f"\tWarning: Unrecognized attribute '{attribute}' "
-                                          f"in block '{current_block_name}'")
+                                    print(
+                                        f"\tWarning: Unrecognized attribute '{attribute}' "
+                                        f"in block '{current_block_name}'"
+                                    )
                                 current_block.other[attribute] = value
                     # If time_series_print is passed on its own without a list of species
                     # then set the time_series_print attribute to True, so that all species
                     # are printed to file
-                    elif parts[0] in ['time_series_print']:
+                    elif parts[0] in ["time_series_print"]:
                         current_block.time_series_print = True
                     else:
                         if warnings:
-                            print(f"\tWarning: Attribute '{line}' in block '{current_block_name}' "
-                                  f"does not have a value associated with it")
+                            print(
+                                f"\tWarning: Attribute '{line}' in block '{current_block_name}' "
+                                f"does not have a value associated with it"
+                            )
 
         return instance
-
