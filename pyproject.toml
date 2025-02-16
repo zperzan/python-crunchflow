@@ -19,6 +19,77 @@ optional = true
 pytest = "^8.2.2"
 tox-pyenv-redux = "^1.1.0"
 
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.9.6"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+exclude = [
+    ".idea",
+    ".ipynb_checkpoints",
+    ".git",
+    ".tox",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    "build",
+    "dist"
+]
+
+# Target version
+target-version = "py310"
+
+[tool.ruff.lint]
+
+select = [
+    "E",  # pycodestyle errors
+     "W",  # pycodestyle warnings
+     "F",  # pyflakes
+     "I",  # isort
+     "N",  # PEP8 naming convetions
+     "D"  # pydocstyle
+]
+
+# Ignore a few rules
+ignore = [
+    "N801", # Ignore required camelcase for class names
+    "N802", # Ignore function names should be lowercase
+    "D205", # Ignore 1 blank line required between summary line and description
+    "D400", # Ignore first docstring line should end with a period
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]  # Ignore docstring errors in tests
+"docs/*" = ["D"]  # Ignore docstring errors in docs
+"__init__.py" = ["D"]  # Ignore docstring errors in __init__.py
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.format]
+# Indent with spaces rather than tabs
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"

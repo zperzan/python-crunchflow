@@ -1,2 +1,8 @@
+from .blocks import Condition, KeywordBlock
 from .inputfile import InputFile
-from .blocks import KeywordBlock, Condition
+
+__all__ = [
+    'InputFile',
+    'KeywordBlock',
+    'Condition'
+]

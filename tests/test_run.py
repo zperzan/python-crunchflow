@@ -1,9 +1,9 @@
 import os
-import sys
+
 import pytest
 
-print(sys.path)
-from crunchflow.input import InputFile, Condition
+from crunchflow.input import Condition, InputFile
+
 
 def test_add_condition():
     crunchrun = InputFile()

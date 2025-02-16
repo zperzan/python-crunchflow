@@ -1,12 +1,32 @@
-from crunchflow.input.blocks import (
-    Title, Runtime, Output, Discretization, IonExchange,
-    SurfaceComplexation, Condition, Transport, Flow, Temperature,
-    Porosity, Pest, Erosion, InitialConditions, BoundaryConditions,
-    PrimarySpecies, SecondarySpecies, Gases, Minerals, AqueousKinetics,
-    Isotopes, DatabaseBlock
-)
-from importlib.metadata import version
+"""A module for creating and saving CrunchFlow input files."""
+
 import os
+from importlib.metadata import version
+
+from crunchflow.input.blocks import (
+    AqueousKinetics,
+    BoundaryConditions,
+    Condition,
+    DatabaseBlock,
+    Discretization,
+    Erosion,
+    Flow,
+    Gases,
+    InitialConditions,
+    IonExchange,
+    Isotopes,
+    Minerals,
+    Output,
+    Pest,
+    Porosity,
+    PrimarySpecies,
+    Runtime,
+    SecondarySpecies,
+    SurfaceComplexation,
+    Temperature,
+    Title,
+    Transport,
+)
 
 
 def format_class_name(name):
@@ -22,8 +42,8 @@ def format_class_name(name):
     Returns
     -------
     str
-        The class name converted to uppercase with underscores between words."""
-
+        The class name converted to uppercase with underscores between words.
+    """
     import re
 
     # DatabaseBlock is a special case, because we want to distinguish it from the
@@ -37,6 +57,8 @@ def format_class_name(name):
 
 
 class InputFile:
+    """The main class for creating and saving CrunchFlow input files."""
+
     def __init__(self):
         self.title = Title()
         self.runtime = Runtime()
@@ -70,8 +92,8 @@ class InputFile:
         block_name : str
             The name of the block to set.
         parameters : dict
-            A dictionary of parameters to set for the block."""
-
+            A dictionary of parameters to set for the block.
+        """
         if block_name == 'condition':
             name = parameters.pop('name', None)
             if name:
@@ -83,6 +105,7 @@ class InputFile:
             block.set_parameters(parameters)
 
     def __str__(self):
+        """Return a string representation of the CrunchFlow input file."""
         result = []
         for attr, value in self.__dict__.items():
             # Conditions are handled as dict since there can be multiple
@@ -117,8 +140,8 @@ class InputFile:
         Returns
         -------
         None
-            The CrunchFlow input file is saved to disk."""
-
+            The CrunchFlow input file is saved to disk.
+        """
         full_path = os.path.join(path, filename)
         with open(full_path, 'w') as file:
             file.write('! CrunchFlow input file\n')
@@ -150,7 +173,8 @@ class InputFile:
         Returns
         -------
         InputFile
-            A Run instance with the data read from the input file."""
+            A Run instance with the data read from the input file.
+        """
         instance = cls()
         full_path = os.path.join(path, filename)
 

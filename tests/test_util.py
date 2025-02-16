@@ -1,9 +1,11 @@
 import os
 import shutil
+
 import numpy as np
 import pytest
-from crunchflow.util import correct_exponent
+
 from crunchflow.output import SpatialProfile
+from crunchflow.util import correct_exponent
 
 
 def test_correctexponent():

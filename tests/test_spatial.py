@@ -1,6 +1,6 @@
-import os
 import numpy as np
 import pytest
+
 from crunchflow.output.spatial import SpatialProfile
 
 
@@ -37,9 +37,8 @@ def test_wrr_floodplain():
     volume = SpatialProfile('volume', folder='tests/data/wrr_floodplain_redox')
     perm = SpatialProfile('permeability', folder='tests/data/wrr_floodplain_redox')
     correct_coords = np.load('tests/data/wrr_floodplain_redox/correct_coords.npy')
-    correct_griddedX = np.load('tests/data/wrr_floodplain_redox/correct_griddedX.npy')
+    correct_gridded_x = np.load('tests/data/wrr_floodplain_redox/correct_griddedX.npy')
     domain_shape = (volume.nx, volume.ny, volume.nz)
-    grid_shape = (n for n in domain_shape if n != 1)
     correct_columns = ['Gypsum', 'Calcite', 'Mackinawite', 'Ferrihydrite',
                        'Fe(OH)3_HS', 'Siderite', 'S(s)', 'C6H10O5(s)']
     calcite = volume.extract('Calcite')
@@ -56,7 +55,7 @@ def test_wrr_floodplain():
     assert sorted(volume.columns) == sorted(correct_columns), 'Incorrectly read volume columns'
     assert volume.title == 'Mineral Volumes (m^3 mineral/m^3 porous medium)', 'Incorrectly read volume title'
     assert volume.times == [740], 'Incorrectly read volume times'
-    assert np.allclose(volume.griddedX, correct_griddedX, atol=1e-3), 'Incorrectly gridded coordinates'
+    assert np.allclose(volume.griddedX, correct_gridded_x, atol=1e-3), 'Incorrectly gridded coordinates'
     assert np.allclose(volume.coords, correct_coords, atol=1e-3), 'Incorrectly read volume coordinates'
     assert np.allclose(calcite, correct_calcite, atol=1e-3), 'Incorrectly read calcite data'
     assert np.allclose(perm_arr, correct_perm, atol=1e-3), 'Incorrectly read permeability data'
@@ -78,7 +77,8 @@ def test_flow2d():
     assert (rate.nx, rate.ny, rate.nz) == (31, 41, 1), 'Incorrectly read nx, ny, nz from rate file'
     assert rate.griddedX.shape == (41, 31), 'Incorrectly gridded coordinates'
     assert sorted(rate.columns) == sorted(correct_columns), 'Incorrectly read rate columns'
-    assert totmineral.title == 'Total Component Concentration in Minerals (mol/m^3 PM)', 'Incorrectly read TotMineral title'
+    assert totmineral.title == 'Total Component Concentration in Minerals (mol/m^3 PM)', \
+        'Incorrectly read TotMineral title'
     assert np.allclose(np.log10(oxygen), np.log10(correct_oxygen), atol=1e-3), 'Incorrectly read TotMineral data'
     for col in rate.columns:
         data = rate.extract(col)
@@ -105,7 +105,8 @@ def test_readdat():
     assert velocity.times == [1], 'Incorrectly read number of velocity1.dat files'
     assert velocity.columns == correct_columns, 'Incorrectly read columns from velocity1.dat file'
     assert np.allclose(velocity.coords, correct_coords, atol=1e-3), 'Incorrectly read velocity1.dat coordinates'
-    assert np.allclose(velocity.extract('X Velocity', 1), correct_velocity, atol=1e-3), 'Incorrectly read velocity1.dat data'
+    assert np.allclose(velocity.extract('X Velocity', 1), correct_velocity, atol=1e-3), \
+        'Incorrectly read velocity1.dat data'
 
 
 if __name__ == "__main__":

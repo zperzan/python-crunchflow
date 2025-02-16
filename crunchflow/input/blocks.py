@@ -1,8 +1,19 @@
+"""A submodule for defining classes that represent blocks in a CrunchFlow input file."""
+
 class KeywordBlock:
+    """Base class for all keyword blocks in a CrunchFlow input file"""
+
     def __init__(self):
         self.other = {}
 
     def set_parameters(self, parameters):
+        """Set the parameters for the block
+
+        Parameters
+        ----------
+        parameters : dict
+            Dictionary of parameters to set
+        """
         for key, value in parameters.items():
             key = key.lower()
             if hasattr(self, key):
@@ -11,6 +22,7 @@ class KeywordBlock:
                 self.other[key] = value
 
     def __str__(self):
+        """Return a string representation of the block"""
         result = []
         for attr, value in self.__dict__.items():
             # Only print values that are not empty strings, empty lists or None
@@ -28,33 +40,46 @@ class KeywordBlock:
 
 
 class Title(KeywordBlock):
+    """Title block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.title = ''
 
     def set_parameters(self, parameters):
+        """Set parameters for the Title block"""
         self.title = parameters.strip()
 
     def __str__(self):
+        """Return the title as a string"""
         return self.title
 
 
 class DatabaseBlock(KeywordBlock):
     """Typically, the database is specified in the Runtime() block, but
     some input files use a separate DATABASE block. This class is not to be
-    confused with the Database() class for manipulating geochemical databases"""
+    confused with the Database() class for manipulating geochemical databases
+    """
+
     def __init__(self):
         super().__init__()
         self.database = ''
 
     def set_parameters(self, parameters):
+        """Set the database for the block"""
         self.database = parameters.strip()
 
     def __str__(self):
+        """Return the database block as a string"""
         return self.database
 
 
 class Runtime(KeywordBlock):
+    """Runtime block for the input file
+
+    This block contains parameters that control the runtime of the simulation
+    """
+
     def __init__(self):
         super().__init__()
         self.aqueousdatabase = ''
@@ -109,6 +134,7 @@ class Runtime(KeywordBlock):
     # Redefine __str__ to ensure certain underscores are replaced with
     # hyphens in the output (e.g., debye_huckel -> debye-huckel)
     def __str__(self):
+        """Return the runtime block as a string"""
         result = []
         for attr, value in self.__dict__.items():
             if attr == 'debye_huckel' and value:
@@ -126,6 +152,11 @@ class Runtime(KeywordBlock):
 
 
 class Output(KeywordBlock):
+    """Output block for the input file
+
+    This block contains parameters that control the output of the simulation
+    """
+
     def __init__(self):
         super().__init__()
         self.FluxWeightedConcentrationSpecies = ''
@@ -142,6 +173,7 @@ class Output(KeywordBlock):
         self.WriteFluxWeightedConcentration = ''
 
     def set_parameters(self, parameters):
+        """Set the parameters for the Output block"""
         for key, value in parameters.items():
             key = key.lower()
             if key == 'time_series':
@@ -152,6 +184,9 @@ class Output(KeywordBlock):
                 self.other[key] = value
 
     def __str__(self):
+        """Return the output block as a string, as it would be represented
+        in a CrunchFlow input file
+        """
         result = []
         for attr, value in self.__dict__.items():
             exceptions = ['other', 'time_series', 'time_series_print']
@@ -177,6 +212,8 @@ class Output(KeywordBlock):
 
 
 class Discretization(KeywordBlock):
+    """Discretization block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.distance_units = ''
@@ -186,6 +223,8 @@ class Discretization(KeywordBlock):
 
 
 class IonExchange(KeywordBlock):
+    """Ion exchange block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.exchange = ''
@@ -193,6 +232,8 @@ class IonExchange(KeywordBlock):
 
 
 class Condition(KeywordBlock):
+    """Condition block for the input file"""
+
     def __init__(self, name):
         super().__init__()
         self.concentrations = {}
@@ -206,6 +247,7 @@ class Condition(KeywordBlock):
         self.units = ''
 
     def set_parameters(self, parameters):
+        """Set the parameters for the Condition block"""
         for key, value in parameters.items():
             condition_attributes = ['units', 'equilibrate_surface', 'temperature',
                                     'set_porosity', 'set_saturation']
@@ -218,6 +260,7 @@ class Condition(KeywordBlock):
         self.species = list(self.concentrations.keys())
 
     def __str__(self):
+        """Return the condition block as a string"""
         result = [f"CONDITION              {self.name}"]
         if self.units:
             result.append(f"units                  {self.units}")
@@ -234,10 +277,13 @@ class Condition(KeywordBlock):
         return "\n".join(result)
 
     def __repr__(self):
+        """Return the name of the condition"""
         return self.name
 
 
 class Transport(KeywordBlock):
+    """Transport block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.anisotropy_ratioY = ''
@@ -264,6 +310,7 @@ class Transport(KeywordBlock):
         self.tortuosityMP = []
 
     def __str__(self):
+        """Return the transport block as a string"""
         result = []
         for attr, value in self.__dict__.items():
             exceptions = ['other', 'D_25', 'tortuosityMP']
@@ -284,6 +331,8 @@ class Transport(KeywordBlock):
 
 
 class Flow(KeywordBlock):
+    """Flow block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.calculate_flow = ''
@@ -307,6 +356,7 @@ class Flow(KeywordBlock):
         self.time_units = ''
 
     def set_parameters(self, parameters):
+        """Set the parameters for the Flow block"""
         for key, value in parameters.items():
             key = key.lower()
             if key in ['pressure', 'permeability_x', 'permeability_y', 'permeability_z']:
@@ -317,6 +367,7 @@ class Flow(KeywordBlock):
                 self.other[key] = value
 
     def __str__(self):
+        """Return the flow block as a string"""
         exceptions = ['other', 'pressure', 'permeability_x', 'permeability_y', 'permeability_z']
         result = []
         for attr, value in self.__dict__.items():
@@ -330,7 +381,7 @@ class Flow(KeywordBlock):
 
         # Print pressure, since it can be defined multiple times
         for press in self.pressure:
-            line = f"pressure               "
+            line = "pressure               "
             for p in press.split():
                 line += f"{p:<8} "
             result.append(line.strip())
@@ -350,6 +401,8 @@ class Flow(KeywordBlock):
 
 
 class Temperature(KeywordBlock):
+    """Temperature block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.read_TemperatureFile = ''
@@ -358,6 +411,8 @@ class Temperature(KeywordBlock):
 
 
 class Porosity(KeywordBlock):
+    """Porosity block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.fix_microporosity = ''
@@ -375,6 +430,8 @@ class Porosity(KeywordBlock):
 
 
 class Pest(KeywordBlock):
+    """Pest block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.CreatePestInstructionFile = ''
@@ -383,12 +440,16 @@ class Pest(KeywordBlock):
 
 
 class Erosion(KeywordBlock):
+    """Erosion block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.read_BurialFile = ''
 
 
 class Isotopes(KeywordBlock):
+    """Isotopes block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.isotope_time_series = ''
@@ -396,6 +457,7 @@ class Isotopes(KeywordBlock):
         self.primary = []
 
     def set_parameters(self, parameters):
+        """Set the parameters for the Isotopes block"""
         for key, value in parameters.items():
             key = key.lower()
             if key == 'mineral':
@@ -408,6 +470,7 @@ class Isotopes(KeywordBlock):
                 self.other[key] = value
 
     def __str__(self):
+        """Return the isotopes block as a string"""
         result = []
         for attr, value in self.__dict__.items():
             if attr not in ['other', 'mineral', 'primary'] and (value or isinstance(value, bool)):
@@ -427,14 +490,18 @@ class Isotopes(KeywordBlock):
 
 
 class InitialConditions(KeywordBlock):
+    """Initial conditions block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.conditions = []
 
     def set_parameters(self, parameters):
+        """Set the parameters for the InitialConditions block"""
         self.conditions = parameters.get('conditions', [])
 
     def __str__(self):
+        """Return the initial conditions block as a string"""
         result = []
         for cond in self.conditions:
             name, *coords = cond.split()
@@ -445,6 +512,8 @@ class InitialConditions(KeywordBlock):
 
 
 class BoundaryConditions(KeywordBlock):
+    """Boundary conditions block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.x_begin = ''
@@ -456,41 +525,55 @@ class BoundaryConditions(KeywordBlock):
 
 
 class SpeciesBlock(KeywordBlock):
+    """Base class for all species blocks in a CrunchFlow input file"""
+
     def __init__(self):
         super().__init__()
         self.species = []
 
     def set_parameters(self, parameters):
+        """Set the parameters for the species block"""
         self.species = parameters.get('species', [])
 
     def __str__(self):
+        """Return the species block as a string"""
         return "\n".join(self.species)
 
 
 class PrimarySpecies(SpeciesBlock):
+    """Primary species block for the input file"""
+
     pass
 
 
 class SecondarySpecies(SpeciesBlock):
+    """Secondary species block for the input file"""
+
     pass
 
 
 class Gases(SpeciesBlock):
+    """Gases block for the input file"""
+
     pass
 
 
 class SurfaceComplexation(KeywordBlock):
+    """Surface complexation block for the input file"""
+
     def __init__(self):
         super().__init__()
         self.species = []
         self.species_dict = {}
 
     def set_parameters(self, parameters):
+        """Set the parameters for the SurfaceComplexation block"""
         for species, details in parameters.items():
             self.species.append(species)
             self.species_dict[species] = details
 
     def __str__(self):
+        """Return the surface complexation block as a string"""
         result = []
         for species, details in self.species_dict.items():
             result.append(f"{species:<22} {details}")
@@ -498,12 +581,15 @@ class SurfaceComplexation(KeywordBlock):
 
 
 class KineticsBlock(KeywordBlock):
+    """Base class for all kinetics blocks in a CrunchFlow input file"""
+
     def __init__(self):
         super().__init__()
         self.species_dict = {}
         self.species = []
 
     def set_parameters(self, parameters):
+        """Set the parameters for the kinetics block"""
         for species, details in parameters.items():
             label = details.pop('label', None)
             if species not in self.species_dict:
@@ -515,12 +601,14 @@ class KineticsBlock(KeywordBlock):
                 self.species_dict[species]['default'] = details
 
     def update_parameters(self, species, label, new_details):
+        """Update the parameters for a species in the kinetics block"""
         if species in self.species_dict and label in self.species_dict[species]:
             self.species_dict[species][label].update(new_details)
         else:
             print(f"Species '{species}' with label '{label}' not found.")
 
     def __str__(self):
+        """Return the kinetics block as a string"""
         result = []
         for species, labels in self.species_dict.items():
             if 'default' in labels and not labels['default']:
@@ -537,8 +625,12 @@ class KineticsBlock(KeywordBlock):
 
 
 class Minerals(KineticsBlock):
+    """Minerals block for the input file"""
+
     pass
 
 
 class AqueousKinetics(KineticsBlock):
+    """Aqueous kinetics block for the input file"""
+
     pass
