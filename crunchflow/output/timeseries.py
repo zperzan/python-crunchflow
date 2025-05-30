@@ -245,6 +245,10 @@ class TimeSeries:
         # Open the database and get the molar mass of each species
         with open(databasepath) as db:
             for line in db:
+                # Skip blank lines
+                if not line.strip():
+                    continue
+
                 for spec in self.species:
                     # Database format is, e.g., "'Ca++' 6.0  2.0    40.0780",
                     # where the last value is the molar mass
