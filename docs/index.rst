@@ -2,9 +2,13 @@ python-crunchflow -- A Python Library for Working with the CrunchFlow Reactive T
 =============================================================================================
 
 ``python-crunchflow`` is an open source python package designed for working with the the reactive
-transport model `CrunchFlow <https://bitbucket.org/crunchflow/>`_. This library provides a set
+transport model `CrunchFlow <https://github.com/CISteefel/CrunchTope>`_. This library provides a set
 of tools for managing and manipulating CrunchFlow input files, as well as quickly reading and
 plotting model output.
+
+If you use the ``crunchflow`` package in published work, please cite the paper for which it was originally developed:
+
+Perzan, Z., Babey, T., Caers, J., Bargar, J.R. and Maher, K., 2021, Local and global sensitivity analysis of a reactive transport model simulating floodplain redox cycling, *Water Resources Research*, doi: `10.1029/2021WR029723 <https://dx.doi.org/10.1029/2021WR029723>`_
 
 This library consists of two main subpackages:
 
@@ -22,7 +26,7 @@ Contents
    Tutorials <tutorials>
 
 - **Tutorials**. Most of the functionality of this package is documented in the `Tutorials <tutorials.html>`_ section. There is one tutorial each for the ``crunchflow.input`` and ``crunchflow.output`` subpackages.
-- **Documentation**. Some documentation of individual classes and functions is also included in the `API Reference <autoapi/crunchflow/index.html>`_.
+- **Documentation**. Some documentation of individual classes and functions is also included in the `API Reference <autoapi/index.html>`_.
 
 Indices and tables
 ==================
