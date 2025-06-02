@@ -212,17 +212,20 @@ class SpatialProfile:
     columns : list of str
         list of all vars included within each .tec file
     nx : int
-        # of grid cells in the x direction
+        # of grid cells in the x direction. Typically only defined for 2D and 3D output
     ny : int
-        # of grid cells in the y direction
+        # of grid cells in the y direction. Typically only defined for 2D and 3D output
     nz : int
-        # of grid cells in the z direction
+        # of grid cells in the z direction. Typically only defined for 2D and 3D output
     coords : ndarray of float
-        (nx*ny*nz, 2) array of x, y coordinates of each node
+        (nx*ny*nz, 2) array of x, y coordinates of each node. Typically only defined
+        for 2D and 3D output
     griddedX : ndarray of float
-        (ny, nx) array of x coordinates; used for plotting
+        (ny, nx) array of x coordinates; used for plotting. Typically only defined for
+        2D and 3D output
     griddedY : ndarray of float
-        (ny, nx) array of y coordinates; used for plotting
+        (ny, nx) array of y coordinates; used for plotting. Typically only defined for
+        2D and 3D output
 
     Methods
     -------
