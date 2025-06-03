@@ -1,0 +1,491 @@
+ 
+  ************************** CrunchFlow ******************************
+    
+                   Authors:  C.I. STEEFEL, S. MOLINS 
+                       *** Copyright Notice ***          
+  “CrunchFlow”, Copyright (c) 2016, The Regents of the University of California,
+  through Lawrence Berkeley National Laboratory
+  (subject to receipt of any required approvals from the U.S. Dept. of Energy). 
+  All rights reserved.
+ 
+  If you have questions about your rights to use or distribute this software, pl
+ ease contact 
+  Berkeley Lab Innovation & Partnerships Office at  IPO@lbl.gov.  
+ 
+  NOTICE.  This Software was developed under funding from the U.S. Department of
+  Energy and the U.S. Government 
+  consequently retains certain rights. As such, the U.S. Government has been gra
+ nted for itself and others acting 
+  on its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the S
+ oftware to reproduce, distribute copies to the public, 
+  prepare derivative works, and perform publicly and display publicly, and to pe
+ rmit other to do so.
+    
+ 
+ 
+  Mingliang Xie Benchmark 5 on porosity and permeability change (2D)      
+ 
+ 
+ 
+   ---> Using database: datacom_mingliangBdot.dbs                                                                           
+ 
+ 
+ Number of components =                    10
+ 
+  1 H+                
+  2 CO3--             
+  3 Ca++              
+  4 SO4--             
+  5 Fe++              
+  6 Al+++             
+  7 K+                
+  8 O2(aq)            
+  9 Na+               
+ 10 Tracer            
+ 
+ Number of secondary species in input file =           41
+ 
+  1 Fe+++             
+  2 Fe(OH)2+          
+  3 FeOH++            
+  4 FeHSO4++          
+  5 FeSO4+            
+  6 Fe(OH)3(aq)       
+  7 Fe(OH)4-          
+  8 Fe(SO4)2-         
+  9 FeCO3+            
+ 10 Fe2(OH)2++++      
+ 11 Fe3(OH)4(5+)      
+ 12 KHSO4(aq)         
+ 13 H2SO4(aq)         
+ 14 H2(aq)            
+ 15 FeOH+             
+ 16 Fe(OH)3-          
+ 17 FeSO4(aq)         
+ 18 FeHSO4+           
+ 19 FeHCO3+           
+ 20 FeCO3(aq)         
+ 21 Fe(OH)2(aq)       
+ 22 OH-               
+ 23 CaOH+             
+ 24 CaHCO3+           
+ 25 CaCO3(aq)         
+ 26 CaSO4(aq)         
+ 27 CaHSO4+           
+ 28 NaCO3-            
+ 29 NaHCO3(aq)        
+ 30 NaSO4-            
+ 31 KSO4-             
+ 32 AlOH++            
+ 33 Al(OH)2+          
+ 34 AlO2-             
+ 35 AlSO4+            
+ 36 AlHSO4++          
+ 37 Al(SO4)2-         
+ 38 HAlO2(aq)         
+ 39 HCO3-             
+ 40 CO2(aq)           
+ 41 HSO4-             
+ 
+ Number of gases in input file =                3
+ 
+  1 CO2(g)            
+  2 O2(g)             
+  3 H2(g)             
+ 
+ 
+ Number of kinetic minerals =            7
+ 
+ 
+  Using database file: datacom_mingliangBdot.dbs
+ 
+  temperature interpolation coefficients
+                  ln(T+Tk)        1         T+Tk      (T+Tk)**-1   (t+tk)**-2
+ 
+    HOMOGENEOUS REACTIONS
+ 
+ Species         log K         Stoichiometric Coefficients
+                            H+     CO3--  Ca++   SO4--  Fe++   Al+++  K+     O2(aq) Na+    Tracer 
+ Fe+++        -8.4725E+00   1.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Fe(OH)2+     -2.8025E+00  -1.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ FeOH++       -6.2825E+00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ FeHSO4++     -1.2950E+01   2.00   0.00   0.00   1.00   1.00   0.00   0.00   0.25   0.00   0.00
+ FeSO4+       -1.2512E+01   1.00   0.00   0.00   1.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Fe(OH)3(aq)   4.0875E+00  -2.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Fe(OH)4-      1.3128E+01  -3.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Fe(SO4)2-    -1.3852E+01   1.00   0.00   0.00   2.00   1.00   0.00   0.00   0.25   0.00   0.00
+ FeCO3+       -1.8193E+01   1.00   1.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Fe2(OH)2++++ -1.3995E+01   0.00   0.00   0.00   0.00   2.00   0.00   0.00   0.50   0.00   0.00
+ Fe3(OH)4(5+) -1.9117E+01  -1.00   0.00   0.00   0.00   3.00   0.00   0.00   0.75   0.00   0.00
+ KHSO4(aq)    -8.1360E-01   1.00   0.00   0.00   1.00   0.00   0.00   1.00   0.00   0.00   0.00
+ H2SO4(aq)     1.0209E+00   2.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00
+ H2(aq)        4.6107E+01   0.00   0.00   0.00   0.00   0.00   0.00   0.00  -0.50   0.00   0.00
+ FeOH+         9.5000E+00  -1.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ Fe(OH)3-      3.1000E+01  -3.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ FeSO4(aq)    -2.2500E+00   0.00   0.00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00
+ FeHSO4+      -3.0680E+00   1.00   0.00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00
+ FeHCO3+      -1.2330E+01   1.00   1.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ FeCO3(aq)    -4.3800E+00   0.00   1.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ Fe(OH)2(aq)   2.0570E+01  -2.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ OH-           1.3998E+01  -1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CaOH+         1.2780E+01  -1.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CaHCO3+      -1.1440E+01   1.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CaCO3(aq)    -3.2200E+00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CaSO4(aq)    -2.3090E+00   0.00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CaHSO4+      -3.0680E+00   1.00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00
+ NaCO3-       -1.2680E+00   0.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   1.00   0.00
+ NaHCO3(aq)   -1.0080E+01   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   1.00   0.00
+ NaSO4-       -7.0000E-01   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   1.00   0.00
+ KSO4-        -8.5000E-01   0.00   0.00   0.00   1.00   0.00   0.00   1.00   0.00   0.00   0.00
+ AlOH++        4.9900E+00  -1.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00
+ Al(OH)2+      1.0594E+01  -2.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00
+ AlO2-         2.2700E+01  -4.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00
+ AlSO4+       -3.5000E+00   0.00   0.00   0.00   1.00   0.00   1.00   0.00   0.00   0.00   0.00
+ AlHSO4++     -2.4480E+00   1.00   0.00   0.00   1.00   0.00   1.00   0.00   0.00   0.00   0.00
+ Al(SO4)2-    -5.0000E+00   0.00   0.00   0.00   2.00   0.00   1.00   0.00   0.00   0.00   0.00
+ HAlO2(aq)     1.6900E+01  -3.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00
+ HCO3-        -1.0329E+01   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ CO2(aq)      -1.6681E+01   2.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ HSO4-        -1.9870E+00   1.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00
+ 
+      MINERAL REACTIONS
+ 
+ Mineral         log K         Stoichiometric Coefficients
+                            H+     CO3--  Ca++   SO4--  Fe++   Al+++  K+     O2(aq) Na+    Tracer 
+ Calcite      -8.4800E+00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ Gypsum       -4.5800E+00   0.00   0.00   1.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00
+ Ferrihydrite -3.5825E+00  -2.00   0.00   0.00   0.00   1.00   0.00   0.00   0.25   0.00   0.00
+ Jarosite     -3.4627E+01  -3.00   0.00   0.00   2.00   3.00   0.00   1.00   0.75   0.00   0.00
+ Gibbsite      8.1100E+00  -3.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00
+ Siderite     -1.0450E+01   0.00   1.00   0.00   0.00   1.00   0.00   0.00   0.00   0.00   0.00
+ TracerMinera -3.0000E+00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   1.00
+ 
+     GAS REACTIONS
+ 
+ Gases           log K         Stoichiometric Coefficients
+                            H+     CO3--  Ca++   SO4--  Fe++   Al+++  K+     O2(aq) Na+    Tracer 
+ CO2(g)       -1.8160E+01   2.00   1.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   0.00
+ O2(g)        -2.8980E+00   0.00   0.00   0.00   0.00   0.00   0.00   0.00   1.00   0.00   0.00
+ H2(g)         4.3002E+01   0.00   0.00   0.00   0.00   0.00   0.00   0.00  -0.50   0.00   0.00
+ 
+  ***KINETIC INPUTS***
+ 
+   MINERAL
+ 
+ 
+  ******  GEOCHEMICAL CONDITIONS INPUT  ******
+ 
+ Number of geochemical conditions specified =            2
+ 
+  Condition Label: mingliang_boundary
+ 
+ 
+  Primary species    itype     guess      Total conc.  Constraint phase
+  H+                   7    1.0000E-03    0.0000E+00                       
+  CO3--                1    1.0000E-06    1.0000E-02                       
+  Ca++                 1    1.0000E-06    1.0000E-04                       
+  SO4--                1    1.0000E-06    1.0000E-01                       
+  Fe++                 1    1.0000E-06    2.2300E-04                       
+  Al+++                1    1.0000E-06    1.4300E-02                       
+  K+                   1    1.0000E-06    7.6700E-05                       
+  O2(aq)               4    1.0000E-06    1.0050E-01     O2(g)             
+  Na+                  1    1.0000E-06    9.0920E-02                       
+  Tracer               1    1.0000E-06    1.0000E-02                       
+ 
+  Porosity for this chemical condition =   0.2500
+ 
+ 
+ 
+  Condition Label: initial
+ 
+ 
+  Primary species    itype     guess      Total conc.  Constraint phase
+  H+                   7    1.0000E-07    0.0000E+00                       
+  CO3--                4    1.0000E-06    1.0000E-02     CO2(g)            
+  Ca++                 2    1.0000E-06    0.0000E+00                       
+  SO4--                1    1.0000E-06    1.6951E-04                       
+  Fe++                 1    1.0000E-06    1.0000E-05                       
+  Al+++                1    1.0000E-06    1.0000E-05                       
+  K+                   1    1.0000E-06    1.0000E-05                       
+  O2(aq)               4    1.0000E-06    1.0000E-15     O2(g)             
+  Na+                  1    1.0000E-06    1.0000E-15                       
+  Tracer               1    1.0000E-06    1.0000E-05                       
+ 
+  Porosity for this chemical condition =   0.3500
+ 
+ 
+ 
+   ********  SPECIATION OF GEOCHEMICAL CONDITIONS  ********
+ 
+ 
+ *********************************************
+  ---> GEOCHEMICAL CONDITION: mingliang_boundary
+ 
+  Temperature (C)         =     25.000
+  Porosity                =      0.250
+  Liquid Saturation       =      1.000
+  Liquid Density (kg/m^3) =    997.075
+  Solid Density (kg/m^3)  = **********
+  Solid:Solution Ratio    = **********
+  Ionic Strength          =      0.200
+  Solution pH             =      3.000
+  Solution pe             =     18.251
+  Solution Eh (volts)     =      1.080
+  Total Charge            = -6.153E-02
+ 
+ Total Aqueous Concentrations of Primary Species  
+ --------------------------------------- 
+ 
+ Species                Molality     Constraint    Constraint Phase 
+ H+                   2.3925E-02     Activity                        
+ CO3--                1.0000E-02     Total                           
+ Ca++                 1.0000E-04     Total                           
+ SO4--                1.0000E-01     Total                           
+ Fe++                 2.2300E-04     Total                           
+ Al+++                1.4300E-02     Total                           
+ K+                   7.6700E-05     Total                           
+ O2(aq)               1.7713E-04     Gas           O2(g)             
+ Na+                  9.0920E-02     Total                           
+ Tracer               1.0000E-02     Total                           
+ 
+ Concentrations of Individual Species, Exchangers, and Surface Complexes 
+ ----------------------------------------------------------------------- 
+ 
+                           Log        Log                                 Activity
+ Species              Molality   Activity      Molality      Activity   Coefficient    Type
+  H+                    -2.902     -3.000     1.254E-03     1.000E-03     7.973E-01  Aqueous 
+  CO3--                -12.152    -12.661     7.052E-13     2.181E-13     3.093E-01  Aqueous 
+  Ca++                  -4.359     -4.811     4.377E-05     1.547E-05     3.535E-01  Aqueous 
+  SO4--                 -1.148     -1.732     7.105E-02     1.853E-02     2.609E-01  Aqueous 
+  Fe++                 -10.289    -10.775     5.136E-11     1.678E-11     3.268E-01  Aqueous 
+  Al+++                 -3.091     -3.976     8.115E-04     1.057E-04     1.302E-01  Aqueous 
+  K+                    -4.165     -4.322     6.831E-05     4.764E-05     6.973E-01  Aqueous 
+  O2(aq)                -3.916     -3.896     1.214E-04     1.271E-04     1.047E+00  Aqueous 
+  Na+                   -1.080     -1.210     8.323E-02     6.172E-02     7.415E-01  Aqueous 
+  Tracer                -2.000     -1.980     1.000E-02     1.047E-02     1.047E+00  Aqueous 
+  Fe+++                 -5.391     -6.277     4.062E-06     5.290E-07     1.302E-01  Aqueous 
+  Fe(OH)2+              -5.819     -5.947     1.516E-06     1.131E-06     7.458E-01  Aqueous 
+  FeOH++                -4.940     -5.467     1.149E-05     3.415E-06     2.973E-01  Aqueous 
+  FeHSO4++              -6.004     -6.531     9.913E-07     2.947E-07     2.973E-01  Aqueous 
+  FeSO4+                -3.837     -3.969     1.456E-04     1.075E-04     7.384E-01  Aqueous 
+  Fe(OH)3(aq)           -9.857     -9.837     1.391E-10     1.457E-10     1.047E+00  Aqueous 
+  Fe(OH)4-             -15.749    -15.877     1.782E-16     1.329E-16     7.458E-01  Aqueous 
+  Fe(SO4)2-             -4.227     -4.361     5.927E-05     4.359E-05     7.353E-01  Aqueous 
+  FeCO3+                -9.084     -9.218     8.236E-10     6.056E-10     7.353E-01  Aqueous 
+  Fe2(OH)2++++          -7.367     -9.503     4.298E-08     3.140E-10     7.305E-03  Aqueous 
+  Fe3(OH)4(5+)          -9.792    -13.130     1.616E-10     7.419E-14     4.591E-04  Aqueous 
+  KHSO4(aq)             -8.261     -8.241     5.489E-09     5.747E-09     1.047E+00  Aqueous 
+  H2SO4(aq)             -8.773     -8.753     1.687E-09     1.766E-09     1.047E+00  Aqueous 
+  H2(aq)               -44.179    -44.159     6.621E-45     6.933E-45     1.047E+00  Aqueous 
+  FeOH+                -17.143    -17.275     7.188E-18     5.308E-18     7.384E-01  Aqueous 
+  Fe(OH)3-             -32.643    -32.775     2.273E-33     1.678E-33     7.384E-01  Aqueous 
+  FeSO4(aq)            -10.277    -10.257     5.283E-11     5.532E-11     1.047E+00  Aqueous 
+  FeHSO4+              -12.306    -12.439     4.947E-13     3.638E-13     7.353E-01  Aqueous 
+  FeHCO3+              -13.973    -14.106     1.065E-14     7.828E-15     7.353E-01  Aqueous 
+  FeCO3(aq)            -19.076    -19.056     8.387E-20     8.783E-20     1.047E+00  Aqueous 
+  Fe(OH)2(aq)          -25.365    -25.345     4.314E-26     4.518E-26     1.047E+00  Aqueous 
+  OH-                  -10.847    -10.998     1.422E-11     1.005E-11     7.065E-01  Aqueous 
+  CaOH+                -14.469    -14.591     3.396E-15     2.567E-15     7.561E-01  Aqueous 
+  CaHCO3+               -8.910     -9.032     1.229E-09     9.295E-10     7.561E-01  Aqueous 
+  CaCO3(aq)            -14.272    -14.252     5.348E-15     5.601E-15     1.047E+00  Aqueous 
+  CaSO4(aq)             -4.254     -4.234     5.577E-05     5.840E-05     1.047E+00  Aqueous 
+  CaHSO4+               -6.341     -6.475     4.560E-07     3.353E-07     7.353E-01  Aqueous 
+  NaCO3-               -12.475    -12.603     3.346E-13     2.495E-13     7.458E-01  Aqueous 
+  NaHCO3(aq)            -6.811     -6.791     1.546E-07     1.619E-07     1.047E+00  Aqueous 
+  NaSO4-                -2.114     -2.242     7.687E-03     5.733E-03     7.458E-01  Aqueous 
+  KSO4-                 -5.077     -5.204     8.380E-06     6.250E-06     7.458E-01  Aqueous 
+  AlOH++                -5.456     -5.966     3.496E-06     1.081E-06     3.093E-01  Aqueous 
+  Al(OH)2+              -8.443     -8.570     3.609E-09     2.691E-09     7.458E-01  Aqueous 
+  AlO2-                -14.538    -14.676     2.894E-15     2.109E-15     7.286E-01  Aqueous 
+  AlSO4+                -2.071     -2.208     8.501E-03     6.193E-03     7.286E-01  Aqueous 
+  AlHSO4++              -5.710     -6.260     1.950E-06     5.495E-07     2.817E-01  Aqueous 
+  Al(SO4)2-             -2.303     -2.440     4.982E-03     3.630E-03     7.286E-01  Aqueous 
+  HAlO2(aq)            -11.896    -11.876     1.271E-12     1.330E-12     1.047E+00  Aqueous 
+  HCO3-                 -5.205     -5.332     6.236E-06     4.651E-06     7.458E-01  Aqueous 
+  CO2(aq)               -2.000     -1.980     9.994E-03     1.046E-02     1.047E+00  Aqueous 
+  HSO4-                 -2.608     -2.745     2.469E-03     1.799E-03     7.286E-01  Aqueous 
+ 
+ 
+  ****** Partial pressure of gases (bars) *****
+ 
+ CO2(g)               3.15305847E-01
+ O2(g)                1.00500000E-01
+ H2(g)                8.83926984E-42
+ 
+  ****** Saturation state of minerals (log[Q/K] *****
+ 
+  Calcite                  -8.9918
+  Gypsum                   -1.9626
+  Ferrihydrite             -2.1666
+  Jarosite                  0.5942
+  Gibbsite                 -3.0860
+  Siderite                -12.9864
+  TracerMineral             1.0200
+ 
+ *********************************************
+  ---> GEOCHEMICAL CONDITION: initial
+ 
+  Temperature (C)         =     25.000
+  Porosity                =      0.350
+  Liquid Saturation       =      1.000
+  Liquid Density (kg/m^3) =    997.075
+  Solid Density (kg/m^3)  = **********
+  Solid:Solution Ratio    = **********
+  Ionic Strength          =      0.003
+  Solution pH             =      7.000
+  Solution pe             =     10.751
+  Solution Eh (volts)     =      0.636
+  Total Charge            = -7.007E-18
+ 
+ Total Aqueous Concentrations of Primary Species  
+ --------------------------------------- 
+ 
+ Species                Molality     Constraint    Constraint Phase 
+ H+                   2.1870E-03     Activity                        
+ CO3--                1.9118E-03     Gas           CO2(g)            
+ Ca++                 9.5782E-04     Charge                          
+ SO4--                1.6951E-04     Total                           
+ Fe++                 1.0000E-05     Total                           
+ Al+++                1.0000E-05     Total                           
+ K+                   1.0000E-05     Total                           
+ O2(aq)               2.5000E-06     Gas           O2(g)             
+ Na+                  1.0000E-15     Total                           
+ Tracer               1.0000E-05     Total                           
+ 
+ Concentrations of Individual Species, Exchangers, and Surface Complexes 
+ ----------------------------------------------------------------------- 
+ 
+                           Log        Log                                 Activity
+ Species              Molality   Activity      Molality      Activity   Coefficient    Type
+  H+                    -6.976     -7.000     1.057E-07     1.000E-07     9.464E-01  Aqueous 
+  CO3--                 -6.059     -6.160     8.736E-07     6.918E-07     7.919E-01  Aqueous 
+  Ca++                  -3.034     -3.134     9.243E-04     7.345E-04     7.946E-01  Aqueous 
+  SO4--                 -3.819     -3.923     1.516E-04     1.194E-04     7.874E-01  Aqueous 
+  Fe++                 -10.601    -10.701     2.508E-11     1.991E-11     7.937E-01  Aqueous 
+  Al+++                -10.141    -10.356     7.229E-11     4.403E-11     6.091E-01  Aqueous 
+  K+                    -5.000     -5.027     9.992E-06     9.404E-06     9.412E-01  Aqueous 
+  O2(aq)               -17.898    -17.898     1.264E-18     1.265E-18     1.001E+00  Aqueous 
+  Na+                  -15.001    -15.026     9.986E-16     9.412E-16     9.425E-01  Aqueous 
+  Tracer                -5.000     -5.000     1.000E-05     1.001E-05     1.001E+00  Aqueous 
+  Fe+++                -13.488    -13.703     3.253E-14     1.982E-14     6.091E-01  Aqueous 
+  Fe(OH)2+              -5.348     -5.373     4.491E-06     4.237E-06     9.434E-01  Aqueous 
+  FeOH++                -8.791     -8.893     1.618E-09     1.279E-09     7.907E-01  Aqueous 
+  FeHSO4++             -20.046    -20.148     8.996E-21     7.113E-21     7.907E-01  Aqueous 
+  FeSO4+               -13.560    -13.586     2.752E-14     2.595E-14     9.430E-01  Aqueous 
+  Fe(OH)3(aq)           -5.263     -5.263     5.454E-06     5.458E-06     1.001E+00  Aqueous 
+  Fe(OH)4-              -7.278     -7.303     5.277E-08     4.978E-08     9.434E-01  Aqueous 
+  Fe(SO4)2-            -16.143    -16.169     7.197E-17     6.778E-17     9.419E-01  Aqueous 
+  FeCO3+               -10.117    -10.143     7.639E-11     7.195E-11     9.419E-01  Aqueous 
+  Fe2(OH)2++++         -15.940    -16.356     1.149E-16     4.406E-17     3.836E-01  Aqueous 
+  Fe3(OH)4(5+)         -18.759    -19.409     1.743E-19     3.900E-20     2.238E-01  Aqueous 
+  KHSO4(aq)            -15.136    -15.136     7.306E-16     7.311E-16     1.001E+00  Aqueous 
+  H2SO4(aq)            -18.944    -18.944     1.137E-19     1.138E-19     1.001E+00  Aqueous 
+  H2(aq)               -37.158    -37.158     6.946E-38     6.950E-38     1.001E+00  Aqueous 
+  FeOH+                -13.175    -13.201     6.676E-14     6.296E-14     9.430E-01  Aqueous 
+  Fe(OH)3-             -20.675    -20.701     2.111E-21     1.991E-21     9.430E-01  Aqueous 
+  FeSO4(aq)            -12.374    -12.374     4.225E-13     4.227E-13     1.001E+00  Aqueous 
+  FeHSO4+              -18.530    -18.556     2.952E-19     2.780E-19     9.419E-01  Aqueous 
+  FeHCO3+              -11.505    -11.531     3.126E-12     2.945E-12     9.419E-01  Aqueous 
+  FeCO3(aq)            -12.481    -12.481     3.302E-13     3.304E-13     1.001E+00  Aqueous 
+  Fe(OH)2(aq)          -17.271    -17.271     5.355E-18     5.358E-18     1.001E+00  Aqueous 
+  OH-                   -6.972     -6.998     1.067E-07     1.005E-07     9.416E-01  Aqueous 
+  CaOH+                 -8.889     -8.914     1.291E-09     1.219E-09     9.439E-01  Aqueous 
+  CaHCO3+               -4.829     -4.854     1.483E-05     1.400E-05     9.439E-01  Aqueous 
+  CaCO3(aq)             -6.074     -6.074     8.427E-07     8.433E-07     1.001E+00  Aqueous 
+  CaSO4(aq)             -4.748     -4.748     1.785E-05     1.787E-05     1.001E+00  Aqueous 
+  CaHSO4+              -10.963    -10.989     1.089E-11     1.026E-11     9.419E-01  Aqueous 
+  NaCO3-               -19.893    -19.918     1.279E-20     1.207E-20     9.434E-01  Aqueous 
+  NaHCO3(aq)           -18.107    -18.106     7.823E-19     7.829E-19     1.001E+00  Aqueous 
+  NaSO4-               -18.224    -18.249     5.971E-19     5.633E-19     9.434E-01  Aqueous 
+  KSO4-                 -8.074     -8.100     8.427E-09     7.950E-09     9.434E-01  Aqueous 
+  AlOH++                -8.245     -8.346     5.690E-09     4.506E-09     7.919E-01  Aqueous 
+  Al(OH)2+              -6.925     -6.950     1.189E-07     1.121E-07     9.434E-01  Aqueous 
+  AlO2-                 -5.031     -5.056     9.321E-06     8.786E-06     9.425E-01  Aqueous 
+  AlSO4+               -10.753    -10.779     1.764E-11     1.663E-11     9.425E-01  Aqueous 
+  AlHSO4++             -18.728    -18.831     1.869E-19     1.475E-19     7.892E-01  Aqueous 
+  Al(SO4)2-            -13.176    -13.202     6.662E-14     6.279E-14     9.425E-01  Aqueous 
+  HAlO2(aq)             -6.257     -6.256     5.540E-07     5.543E-07     1.001E+00  Aqueous 
+  HCO3-                 -2.806     -2.831     1.564E-03     1.475E-03     9.434E-01  Aqueous 
+  CO2(aq)               -3.479     -3.479     3.317E-04     3.319E-04     1.001E+00  Aqueous 
+  HSO4-                 -8.910     -8.936     1.230E-09     1.159E-09     9.425E-01  Aqueous 
+ 
+ 
+  ****** Partial pressure of gases (bars) *****
+ 
+ CO2(g)               1.00000000E-02
+ O2(g)                1.00000000E-15
+ H2(g)                8.86134046E-35
+ 
+  ****** Saturation state of minerals (log[Q/K] *****
+ 
+  Calcite                  -0.8140
+  Gypsum                   -2.4770
+  Ferrihydrite              2.4070
+  Jarosite                 -2.7715
+  Gibbsite                  2.5338
+  Siderite                 -6.4110
+  TracerMineral            -1.9997
+ 
+                SPECIATION OF  
+      INITIAL AND BOUNDARY CONDITIONS 
+           SUCCESSFULLY COMPLETED
+ 
+ 
+   NZ =            1
+ 
+  Cell  Distance (m)
+   1    5.000E-01
+ 
+ 
+ Number of heterogeneities =            1
+ 
+ 
+ Parameters for this run:
+ 
+  Maximum timestep (yrs) =    1.000E-01
+  Maximum timestep (yrs) =    1.000E-10
+ 
+ --> Porosity calculated from mineral volume fractions
+ ----> Porosity is updated due to mineral dissolution and precipitation reaction
+ s
+ --> Extended Debye-Huckel activity model used
+ --> Activity coefficients only computed
+     at beginning of time step 
+ 
+  Temperature (C) at J = 1            25.00
+  Temperature gradient (C/m) =         0.00
+ 
+ Graphics files printed at (yrs)
+   1.0000E+01
+   2.0000E+01
+   3.0000E+01
+   4.0000E+01
+   5.0000E+01
+   6.0000E+01
+   7.0000E+01
+   8.0000E+01
+   9.0000E+01
+   1.0000E+02
+   1.1000E+02
+   1.2000E+02
+   1.3000E+02
+   1.4000E+02
+   1.5000E+02
+
+ 
+   Reading permeabilities from file: perm5_2D.hyc
+ 
+ 
+ 
+ 
+   Using constant diffusion coefficient
+  Diffusion coefficient (m**2/yr) =       3.1536E-02
+ 
+ 
+  Longitudinal dispersivity (m) =     0.0000E+00
+  Transverse dispersivity (m) =       0.0000E+00
+ 
+ 
+         INITIALIZATION COMPLETED 
+          STARTING TIMESTEPPING 
+ 
