@@ -191,15 +191,6 @@ def get_tec_output_times(crunch_log, folder="."):
     return output_times
 
 
-class tec:
-    """The crunchflow.output.tec class has been deprecated. Use crunchflow.output.SpatialProfile instead."""
-
-    def __init__(self, fileprefix, folder=".", output_times=None, suffix=".tec"):
-        raise DeprecationWarning(
-            "The crunchflow.output.tec class has been deprecated. Use crunchflow.output.SpatialProfile instead."
-        )
-
-
 class SpatialProfile:
     """The SpatialProfile class for working with CrunchFlow spatial_profile files.
 

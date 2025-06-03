@@ -1,4 +1,4 @@
-from .spatial import SpatialProfile, tec
-from .timeseries import TimeSeries, timeseries
+from .spatial import SpatialProfile
+from .timeseries import TimeSeries
 
-__all__ = ["SpatialProfile", "tec", "TimeSeries", "timeseries"]
+__all__ = ["SpatialProfile", "TimeSeries"]

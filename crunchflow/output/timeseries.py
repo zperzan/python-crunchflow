@@ -109,17 +109,6 @@ def get_ts_duplicates(tsfile):
     return columns, nondup_indices
 
 
-class timeseries:
-    """The deprecated timeseries class for working
-    with CrunchFlow time series output files.
-    """
-
-    def __init__(self, tsfile, folder="."):
-        raise DeprecationWarning(
-            "The crunchflow.output.timeseries class has been deprecated. Use crunchflow.output.TimeSeries instead."
-        )
-
-
 class TimeSeries:
     """The timeseries class for working with CrunchFlow time
     series output files.
@@ -140,7 +129,7 @@ class TimeSeries:
         cols are species in the same order as self.species list
     df : dataframe of float
         Pandas dataframe of all data. Index is the time step and columns
-        #are the aqueous species
+        are the aqueous species
 
     Methods
     -------
