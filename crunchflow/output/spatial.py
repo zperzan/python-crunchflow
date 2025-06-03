@@ -386,7 +386,7 @@ class SpatialProfile:
             self.griddedX = self.coords[:, 0].reshape(self.ny, self.nx)
             self.griddedY = self.coords[:, 1].reshape(self.ny, self.nx)
 
-    def plot(self, var, time=None, plot_type="image", figsize=(12, 3), **kwargs):
+    def plot(self, var, time=None, output_time=None, plot_type="image", figsize=(12, 3), **kwargs):
         """Plot .tec output from a single time step.
 
         Parameters
@@ -394,7 +394,12 @@ class SpatialProfile:
         var : str
             variable to plot (e.g., 'H+')
         time : int
-            which time slice to show
+            which time slice to show. Refers to the file number, not the
+            output time. By default, plots the first time slice.
+        output_time : float
+            which output time to show. If provided, this will override the
+            `time` parameter. If both `time` and `output_time` are provided,
+            `time` will be ignored.
         figsize : tuple of int
             figure size; default (12, 3)
         plot_type : str
@@ -412,8 +417,16 @@ class SpatialProfile:
             matplotlib ax handle for the plot
         """
         # If time is not given, plot the first time slice
-        if time is None:
+        if time is None and output_time is None:
             time = self.times[0]
+        elif output_time is not None:
+            # If output_time is provided, find the corresponding time
+            if self.output_times is None:
+                raise ValueError("Please define the output_times for this SpatialProfile")
+            if output_time not in self.output_times:
+                raise ValueError("output_time {} not found in output_times {}".format(output_time, self.output_times))
+            itime = self.output_times.index(output_time)
+            time = self.times[itime]
 
         if plot_type not in ["image", "contour"]:
             raise ValueError("plot_type must be either 'image' or 'contour'")
@@ -468,7 +481,7 @@ class SpatialProfile:
 
         return fig, ax
 
-    def plot_series(self, var, times=None, plot_type="image", figsize=None, **kwargs):
+    def plot_series(self, var, times=None, output_times=None, plot_type="image", figsize=None, **kwargs):
         """Plot .tec output for a series of time steps.
 
         Parameters
@@ -481,6 +494,11 @@ class SpatialProfile:
         plot_type : str
             whether to display an image ('image') or a contour-filled contour
             plot ('contourf')
+        output_times : list of float, optional
+            list of the actual output times at which the .tec files were
+            output, in CrunchFlow time units. If provided, this will override
+            the `times` parameter. If both `times` and `output_times` are
+            provided, `times` will be ignored.
         figsize : tuple of int
             figure size; default (12, 1.5 * # of timesteps)
         **kwargs : dict
@@ -497,8 +515,15 @@ class SpatialProfile:
         if plot_type not in ["image", "contour"]:
             raise ValueError("plot_type must be either 'image' or 'contour'")
 
-        if times is None:
+        if times is None and output_times is None:
             times = self.times
+        elif output_times is not None:
+            # If output_times is provided, find the corresponding times
+            if self.output_times is None:
+                raise ValueError("output_times not provided for this SpatialProfile")
+            if not isinstance(output_times, list):
+                output_times = [output_times]
+            times = [self.times[self.output_times.index(t)] for t in output_times]
 
         # Set up figsize if not provided
         if figsize is None:
@@ -602,7 +627,7 @@ class SpatialProfile:
 
         return fig, axes
 
-    def extract(self, var, time=None):
+    def extract(self, var, time=None, output_time=None):
         """Return the spatial profile of var at the given time.
 
         Parameters
@@ -612,6 +637,10 @@ class SpatialProfile:
         time : int
             time slice at which to return the profile. By default, returns
             the first time slice.
+        output_time : float
+            output time at which to return the profile. If provided, this
+            will override the `time` parameter. If both `time` and
+            `output_time` are provided, `time` will be ignored.
 
         Returns
         -------
@@ -621,8 +650,16 @@ class SpatialProfile:
         if var not in self.columns:
             raise ValueError("{} not found".format(var))
 
-        if time is None:
+        if time is None and output_time is None:
             time = self.times[0]
+        elif output_time is not None:
+            # If output_time is provided, find the corresponding time
+            if self.output_times is None:
+                raise ValueError("Please define the output_times for this SpatialProfile")
+            if output_time not in self.output_times:
+                raise ValueError("output_time {} not found in output_times {}".format(output_time, self.output_times))
+            itime = self.output_times.index(output_time)
+            time = self.times[itime]
 
         if time not in self.times:
             raise ValueError("Requested time ({}) not in {}".format(time, self.times))
@@ -664,7 +701,7 @@ class SpatialProfile:
 
         return data
 
-    def outline(self, var, value=None, time=1):
+    def outline(self, var, value=None, time=None, output_time=None):
         """For a given .tec file, get line segments that outline all the regions
         equal to the provided value. Useful for generating outlines of areas
         of a model domain sharing a single attribute (e.g., permeability) and
@@ -677,7 +714,12 @@ class SpatialProfile:
         value : float
             value to outline. The default is least-frequent value in array
         time : int
-            time slice at which to create an outline
+            time slice at which to create an outline. By default, outlines the first
+            time slice.
+        output_time : float
+            output time at which to create an outline. If provided, this
+            will override the `time` parameter. If both `time` and
+            `output_time` are provided, `time` will be ignored.
 
         Returns
         -------
@@ -696,6 +738,18 @@ class SpatialProfile:
         >>> fig, ax = conc.plot('O2(aq)')
         >>> ax.plot(segments[:,0], segments[:,1])
         """
+        # Determine which time slice to use
+        if time is None and output_time is None:
+            time = self.times[0]
+        elif output_time is not None:
+            # If output_time is provided, find the corresponding time
+            if self.output_times is None:
+                raise ValueError("Please define the output_times for this SpatialProfile")
+            if output_time not in self.output_times:
+                raise ValueError("output_time {} not found in output_times {}".format(output_time, self.output_times))
+            itime = self.output_times.index(output_time)
+            time = self.times[itime]
+
         # Extract the data for this var and time slice
         data = self.extract(var, time=time)
 

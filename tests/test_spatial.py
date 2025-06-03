@@ -16,6 +16,12 @@ def test_cationexchange():
             ex_arr[time - 1, i, :] = np.log10(exchange.extract(species, time=time))
     correct_ex_arr = np.load("tests/data/cation_exchange/correct_exchange.npy")
 
+    # Repeat extraction using output_time instead of time
+    ex_arr_ot = np.empty((len(totcon.times), 3, len(totcon.coords)))
+    for i, output_time in enumerate([150, 300, 450, 600]):
+        for j, species in enumerate(["NaX", "CaX2", "CsX"]):
+            ex_arr_ot[i, j, :] = np.log10(exchange.extract(species, output_time=output_time))
+
     # Same with totcon
     conc_arr = np.empty((len(totcon.times), 3, len(totcon.coords)))
     for time in totcon.times:
@@ -30,6 +36,7 @@ def test_cationexchange():
     assert exchange.output_times == [150.0, 300.0, 450.0, 600.0], "Incorrectly read exchange output times"
     assert np.allclose(totcon.coords, correct_coords, atol=1e-3), "Incorrectly read totcon coordinates"
     assert np.allclose(ex_arr, correct_ex_arr, atol=1e-3), "Incorrectly read exchange data"
+    assert np.allclose(ex_arr_ot, correct_ex_arr, atol=1e-3), "Incorrectly read exchange data using output_time"
     assert np.allclose(conc_arr, correct_conc_arr, atol=1e-3), "Incorrectly read totcon data"
 
 
