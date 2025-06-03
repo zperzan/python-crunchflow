@@ -58,6 +58,10 @@ def test_wrr_floodplain():
     ]
     calcite = volume.extract("Calcite")
     correct_calcite = np.load("tests/data/wrr_floodplain_redox/correct_calcite.npy")
+
+    gypsum = volume.extract("Gypsum")
+    correct_gypsum = np.load("tests/data/wrr_floodplain_redox/correct_gypsum.npy")
+
     # compare permeability data
     correct_perm = np.load("tests/data/wrr_floodplain_redox/correct_perm.npy")
     perm_arr = np.empty((len(perm.columns), perm.ny, perm.nx))
@@ -73,6 +77,7 @@ def test_wrr_floodplain():
     assert np.allclose(volume.griddedX, correct_gridded_x, atol=1e-3), "Incorrectly gridded coordinates"
     assert np.allclose(volume.coords, correct_coords, atol=1e-3), "Incorrectly read volume coordinates"
     assert np.allclose(calcite, correct_calcite, atol=1e-3), "Incorrectly read calcite data"
+    assert np.allclose(gypsum, correct_gypsum, atol=1e-3), "Incorrectly read gypsum data"
     assert np.allclose(perm_arr, correct_perm, atol=1e-3), "Incorrectly read permeability data"
 
 

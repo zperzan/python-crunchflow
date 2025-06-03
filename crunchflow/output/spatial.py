@@ -661,7 +661,7 @@ class SpatialProfile:
         # Get column number of var to retrieve
         if self.fmt == ".tec":
             col_no = self.columns.index(var) + 3  # Add 3 because we deleted X, Y and Z cols
-            data = np.loadtxt(self.files[itime], skiprows=3, usecols=col_no)
+            data = self._load_check_exponent(itime, skiprows=3, usecol=col_no)
 
             # Reshape to (ny, nx)
             data = data.reshape(self.ny, self.nx)
@@ -676,15 +676,15 @@ class SpatialProfile:
                 else:
                     skiprows = 3
             col_no = self.columns.index(var)
-            data = np.loadtxt(self.files[itime], skiprows=skiprows, usecols=col_no)
+            data = self._load_check_exponent(itime, skiprows=skiprows, usecol=col_no)
         elif self.fmt == ".dat":
             if np.isnan(self.nz):
                 col_no = self.columns.index(var) + 2
-                data = np.loadtxt(self.files[itime], skiprows=4, usecols=col_no)
+                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
                 data = data.reshape(self.ny, self.nx)
             else:
                 col_no = self.columns.index(var) + 3
-                data = np.loadtxt(self.files[itime], skiprows=4, usecols=col_no)
+                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
                 data = data.reshape(self.nz, self.ny, self.nx)
 
         else:
@@ -789,6 +789,56 @@ class SpatialProfile:
         segments[:, 1] = y0 + (y1 - y0) * segments[:, 1] / data.shape[0]
 
         return segments
+
+    def _load_check_exponent(self, ifile, skiprows, usecol):
+        """Load the data from file, with error checking for a triple-digit exponent.
+
+        Given a file, first try to read it using np.loadtxt. If that doesn't work,
+        try to read it line-by-line, correcting for the missing "E" in triple-digit
+        exponents.
+
+        Parameters
+        ----------
+        ifile : int
+            index of the file to read in from self.files
+        skiprows : int
+            number of header rows to skip when reading the file
+        usecol : int
+            column number to read in from the file (0-indexed)
+
+        Returns
+        -------
+        data : ndarray of float
+            1D numpy array of the data read from the file
+        """
+        # Pre-compile regex to save time
+        neg_search = re.compile(r"([0-9][0-9])\-([0-9][0-9][0-9])")
+        pos_search = re.compile(r"([0-9][0-9])\+([0-9][0-9][0-9])")
+
+        # Try loading with .tec format first
+        try:
+            data = np.loadtxt(self.files[ifile], skiprows=skiprows, usecols=usecol)
+        except ValueError:
+            # If that fails, try parsing line-by-line
+            with open(self.files[ifile], "r") as f:
+                all_lines = f.readlines()
+
+            data = np.empty(len(all_lines) - skiprows, dtype=np.float64)
+            for i, line in enumerate(all_lines):
+                if i < skiprows:
+                    continue
+                else:
+                    raw_str = line.split()[usecol]
+                    if re.search(neg_search, raw_str):
+                        corr_val = re.sub(neg_search, r"\1E-\2", raw_str)
+                    elif re.search(pos_search, raw_str):
+                        corr_val = re.sub(pos_search, r"\1E+\2", raw_str)
+                    else:
+                        corr_val = raw_str
+
+                data[i - skiprows] = float(corr_val)
+
+        return data
 
 
 if __name__ == "__main__":
