@@ -2,10 +2,13 @@
 
 import os
 import re
+import textwrap
 
 import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+
+from crunchflow.input import InputFile
 
 
 def isnumeric_scientific(s):
@@ -17,6 +20,33 @@ def isnumeric_scientific(s):
         return True
     except ValueError:
         return False
+
+
+def read_output_times(fname):
+    """Given a CrunchFlow input file, return the spatial_profile output times
+    as a list of floats.
+
+    Parameters
+    ----------
+    fname : str
+        Name of the input file to read
+
+    Returns
+    -------
+    output_times : list
+        Output times read from the input file
+    """
+    infile = InputFile.load(fname, warnings=False)
+
+    sp_times_str = infile.output.spatial_profile
+
+    if sp_times_str is None:
+        return None
+    else:
+        # Split the string by whitespace and convert to float
+        output_times = [float(t) for t in sp_times_str.split()]
+
+        return output_times
 
 
 def get_tec_metadata(file, folder="."):
@@ -127,7 +157,8 @@ def get_tec_metadata(file, folder="."):
 
 def get_out_output_time(file):
     """Given a CrunchFlow .out file, read it in and return the output time,
-    which should be stored in the first line
+    which should be stored in the first line. Note that this function is
+    out-of-date and has been superseded by `read_output_times`.
 
     Parameters
     ----------
@@ -261,7 +292,7 @@ class SpatialProfile:
     >>> calcite = vol.extract('Calcite', time=2)
     """
 
-    def __init__(self, fileprefix, folder=".", output_times=None, suffix=".tec"):
+    def __init__(self, fileprefix, folder=".", output_times=None, suffix=".tec", warnings=True):
         """Read in and get basic info about all .tec files matching `fileprefix`.
         For example, `SpatialProfile('volume')` will read in all files matching
         'volume[0-9]+.tec'
@@ -283,6 +314,8 @@ class SpatialProfile:
             file ending of the tec files to read in. This can vary depending on the
             version of CrunchTope used. The default is '.tec', but '.out' and '.dat'
             are also tried if '.tec' files are not found.
+        warnings : bool, optional
+            Whether to print warnings. Default is True.
         """
         # Glob doesn't support regex, so match manually using re and os
         search_str = "^" + fileprefix + "[0-9]+%s" % suffix
@@ -324,7 +357,24 @@ class SpatialProfile:
             if self.fmt == ".out":
                 self.output_times = [get_out_output_time(f) for f in self.files]
             elif self.fmt in [".tec", ".dat"]:
-                self.output_times = None
+                # For .tec and .dat files, try reading it from an input file in the same folder
+                inputfiles = [f for f in os.listdir(folder) if f.endswith(".in")]
+                if len(inputfiles) > 1 and warnings:
+                    msg = f"""\
+                           Found multiple input files ({inputfiles}) and could not
+                           determine which file to use to read output_times.
+                           Disable this warning with `SpatialProfile(..., warnings=False)`"""
+                    print(textwrap.dedent(msg))
+                elif len(inputfiles) == 1:
+                    infilepath = os.path.join(folder, inputfiles[0])
+                    self.output_times = read_output_times(infilepath)
+                    if warnings:
+                        msg = f"""\
+                               Reading output_times from ({infilepath}).
+                               Disable this message with `SpatialProfile(..., warnings=False)`"""
+                        print(textwrap.dedent(msg))
+                else:
+                    self.output_times = None
 
         # Get the grid size
         if self.fmt == ".tec":
