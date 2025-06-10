@@ -1,4 +1,19 @@
-"""A module for loading and plotting CrunchFlow spatial_profile output."""
+"""Tools for loading, analyzing, and visualizing spatial profile output from CrunchFlow.
+
+This module provides the `SpatialProfile` class and associated utility functions
+to work with CrunchFlow spatial output files (commonly `.tec`, `.out`, or `.dat` files).
+These files contain gridded data written at specified output times during a simulation,
+and typically include variables such as mineral saturation, aqueous species concentrations,
+porosity, and permeability across 1D, 2D, or 3D model domains.
+
+Key Features
+------------
+- Automatically detects file format and loads output variables and metadata.
+- Supports plotting 2D images or contour maps for any output variable.
+- Enables comparison of results across time steps using `plot_series`.
+- Extracts outlines of zones sharing a common attribute (e.g., permeability zone boundaries).
+- Compatible with `.tec`, `.out`, and `.dat` formats written by CrunchFlow.
+"""
 
 import os
 import re
@@ -12,8 +27,10 @@ from crunchflow.input import InputFile
 
 
 def isnumeric_scientific(s):
-    """Check if a string is numeric. Note that isnumeric does not
-    recognize scientific notation, but float() does.
+    """Check if a string is numeric.
+
+    Return True if a string is an integer, float or in scientific notation,
+    and False otherwise.
     """
     try:
         float(s)
@@ -23,8 +40,7 @@ def isnumeric_scientific(s):
 
 
 def read_output_times(fname):
-    """Given a CrunchFlow input file, return the spatial_profile output times
-    as a list of floats.
+    """Given a CrunchFlow input file, return the spatial_profile output times.
 
     Parameters
     ----------
@@ -50,7 +66,9 @@ def read_output_times(fname):
 
 
 def get_tec_metadata(file, folder="."):
-    """Given a crunch .tec output file, read it in and return a list of the
+    """Return a list of the variables in a spatial_profile output file.
+
+    Given a crunch .tec output file, read it in and return a list of the
     variables (e.g., 'X-Perm', 'Y-Perm', etc) included in the output file.
 
     Parameters
@@ -156,9 +174,10 @@ def get_tec_metadata(file, folder="."):
 
 
 def get_out_output_time(file):
-    """Given a CrunchFlow .out file, read it in and return the output time,
-    which should be stored in the first line. Note that this function is
-    out-of-date and has been superseded by `read_output_times`.
+    """Get the output time from a CrunchFlow .out file.
+
+    Given a CrunchFlow .out file, read it in and return the output time,
+    which should be stored in the first line.
 
     Parameters
     ----------
@@ -181,17 +200,20 @@ def get_out_output_time(file):
 
 
 def get_tec_output_times(crunch_log, folder="."):
-    """Given a log of CrunchFlow terminal output, get the time steps
-    associated with .tec file numbers. For example, during a model run,
-    CrunchFlow will print progress to the screen, including blocks that
-    look like:
+    """Given a CrunchFlow output log, get the spatial_profile output times.
+
+    Search through a file containing all terminal output from a CrunchFlow
+    run and return the spatial_profile output times. For example, during
+    a simulation, CrunchFlow will print progress to the screen, including
+    blocks that look like:
 
         >>> WRITING OUTPUT FILES
         >>> Time (days) =  9.000E+00
         >>> File number  =            2
 
     This function combs through that terminal output to create a list of
-    times at which .tec files were written.
+    times at which .tec files were written. Note that this function is
+    no longer maintained and has been superseded by `read_output_times`.
 
     Parameters
     ----------
@@ -223,7 +245,7 @@ def get_tec_output_times(crunch_log, folder="."):
 
 
 class SpatialProfile:
-    """The SpatialProfile class for working with CrunchFlow spatial_profile files.
+    """The SpatialProfile class for working with spatial_profile (.tec, .out and .dat) files.
 
     Attributes
     ----------
@@ -251,20 +273,19 @@ class SpatialProfile:
 
     Methods
     -------
+    __init__(fileprefix, folder, output_times, suffix)
+        Read in and get basic info about all .tec files matching `fileprefix`.
+        For example, `tec('volume')` will read in all files matching
+        'volume[0-9]+.tec'
+    extract(variable, time)
+        Return the spatial profile of var at the given time.
     plot(variable, time)
         Plot .tec output from a single time step.
     plot_series(variable)
         Plot .tec output for a series of time steps.
-    extract(variable, time)
-        Return the spatial profile of var at the given time.
     outline(variable, value, time)
         Get line segments that outline all the regions equal to
         the provided value.
-
-    __init__(fileprefix, folder, output_times, suffix)
-    Read in and get basic info about all .tec files matching `fileprefix`.
-        For example, `tec('volume')` will read in all files matching
-        'volume[0-9]+.tec'
 
     Parameters
     ----------
@@ -426,6 +447,80 @@ class SpatialProfile:
             self.coords = np.loadtxt(self.files[0], skiprows=4, usecols=[0, 1])
             self.griddedX = self.coords[:, 0].reshape(self.ny, self.nx)
             self.griddedY = self.coords[:, 1].reshape(self.ny, self.nx)
+
+    def extract(self, var, time=None, output_time=None):
+        """Return the spatial profile of var at the given time.
+
+        Parameters
+        ----------
+        var : str
+            variable to return (e.g., 'Porosity')
+        time : int
+            time slice at which to return the profile. By default, returns
+            the first time slice.
+        output_time : float
+            output time at which to return the profile. If provided, this
+            will override the `time` parameter. If both `time` and
+            `output_time` are provided, `time` will be ignored.
+
+        Returns
+        -------
+        data : ndarray of float
+            (ny, nx) numpy array of var
+        """
+        if var not in self.columns:
+            raise ValueError("{} not found".format(var))
+
+        if time is None and output_time is None:
+            time = self.times[0]
+        elif output_time is not None:
+            # If output_time is provided, find the corresponding time
+            if self.output_times is None:
+                raise ValueError("Please define the output_times for this SpatialProfile")
+            if output_time not in self.output_times:
+                raise ValueError("output_time {} not found in output_times {}".format(output_time, self.output_times))
+            itime = self.output_times.index(output_time)
+            time = self.times[itime]
+
+        if time not in self.times:
+            raise ValueError("Requested time ({}) not in {}".format(time, self.times))
+
+        # Get index of file to load, since self.times may not start at 0
+        itime = self.times.index(time)
+
+        # Get column number of var to retrieve
+        if self.fmt == ".tec":
+            col_no = self.columns.index(var) + 3  # Add 3 because we deleted X, Y and Z cols
+            data = self._load_check_exponent(itime, skiprows=3, usecol=col_no)
+
+            # Reshape to (ny, nx)
+            data = data.reshape(self.ny, self.nx)
+        elif self.fmt == ".out":
+            # Check if this file has 3 header rows or two
+            with open(self.files[itime]) as f:
+                # Skip to third line
+                for i in range(3):
+                    line = f.readline()
+                if isnumeric_scientific(line.split()[0]):
+                    skiprows = 2
+                else:
+                    skiprows = 3
+            col_no = self.columns.index(var)
+            data = self._load_check_exponent(itime, skiprows=skiprows, usecol=col_no)
+        elif self.fmt == ".dat":
+            if np.isnan(self.nz):
+                col_no = self.columns.index(var) + 2
+                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
+                data = data.reshape(self.ny, self.nx)
+            else:
+                col_no = self.columns.index(var) + 3
+                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
+                data = data.reshape(self.nz, self.ny, self.nx)
+
+        else:
+            raise ValueError("Could not determine the format of this file")
+
+        return data
 
     def plot(self, var, time=None, output_time=None, plot_type="image", figsize=(12, 3), **kwargs):
         """Plot .tec output from a single time step.
@@ -667,80 +762,6 @@ class SpatialProfile:
             plt.colorbar(cs, cax=cax)
 
         return fig, axes
-
-    def extract(self, var, time=None, output_time=None):
-        """Return the spatial profile of var at the given time.
-
-        Parameters
-        ----------
-        var : str
-            variable to return (e.g., 'Porosity')
-        time : int
-            time slice at which to return the profile. By default, returns
-            the first time slice.
-        output_time : float
-            output time at which to return the profile. If provided, this
-            will override the `time` parameter. If both `time` and
-            `output_time` are provided, `time` will be ignored.
-
-        Returns
-        -------
-        data : ndarray of float
-            (ny, nx) numpy array of var
-        """
-        if var not in self.columns:
-            raise ValueError("{} not found".format(var))
-
-        if time is None and output_time is None:
-            time = self.times[0]
-        elif output_time is not None:
-            # If output_time is provided, find the corresponding time
-            if self.output_times is None:
-                raise ValueError("Please define the output_times for this SpatialProfile")
-            if output_time not in self.output_times:
-                raise ValueError("output_time {} not found in output_times {}".format(output_time, self.output_times))
-            itime = self.output_times.index(output_time)
-            time = self.times[itime]
-
-        if time not in self.times:
-            raise ValueError("Requested time ({}) not in {}".format(time, self.times))
-
-        # Get index of file to load, since self.times may not start at 0
-        itime = self.times.index(time)
-
-        # Get column number of var to retrieve
-        if self.fmt == ".tec":
-            col_no = self.columns.index(var) + 3  # Add 3 because we deleted X, Y and Z cols
-            data = self._load_check_exponent(itime, skiprows=3, usecol=col_no)
-
-            # Reshape to (ny, nx)
-            data = data.reshape(self.ny, self.nx)
-        elif self.fmt == ".out":
-            # Check if this file has 3 header rows or two
-            with open(self.files[itime]) as f:
-                # Skip to third line
-                for i in range(3):
-                    line = f.readline()
-                if isnumeric_scientific(line.split()[0]):
-                    skiprows = 2
-                else:
-                    skiprows = 3
-            col_no = self.columns.index(var)
-            data = self._load_check_exponent(itime, skiprows=skiprows, usecol=col_no)
-        elif self.fmt == ".dat":
-            if np.isnan(self.nz):
-                col_no = self.columns.index(var) + 2
-                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
-                data = data.reshape(self.ny, self.nx)
-            else:
-                col_no = self.columns.index(var) + 3
-                data = self._load_check_exponent(itime, skiprows=4, usecol=col_no)
-                data = data.reshape(self.nz, self.ny, self.nx)
-
-        else:
-            raise ValueError("Could not determine the format of this file")
-
-        return data
 
     def outline(self, var, value=None, time=None, output_time=None):
         """For a given .tec file, get line segments that outline all the regions

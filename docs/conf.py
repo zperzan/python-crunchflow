@@ -47,11 +47,23 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+
+# -- AutoAPI configuration ---------------------------------------------
 # Define directory for autoapi extension
 autoapi_dirs = ["../crunchflow"]
 autoapi_template_dir = "_templates/autoapi"
 
-# -- Options for HTML output -------------------------------------------------
+# Choose which members to document
+autoapi_options = [
+    "members",
+    "inherited-members",
+    "special-members",
+    "show-inheritance",
+    "show-inheritance-diagram",
+    "show-module-summary",
+    "imported-members",
+]
+autoapi_own_page_level = 'class'  # Allow modules and classes to have their own pages
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
