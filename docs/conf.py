@@ -63,7 +63,7 @@ autoapi_options = [
     "show-module-summary",
     "imported-members",
 ]
-autoapi_own_page_level = 'class'  # Allow modules and classes to have their own pages
+autoapi_own_page_level = "class"  # Allow modules and classes to have their own pages
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

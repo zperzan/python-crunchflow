@@ -19,10 +19,4 @@ from .spatial import SpatialProfile
 from .speciation import Speciation
 from .timeseries import TimeSeries
 
-__all__ = [
-    "MainOutputFile",
-    "SpeciationBlockCollection",
-    "Speciation",
-    "TimeSeries",
-    "SpatialProfile"
-]
+__all__ = ["MainOutputFile", "SpeciationBlockCollection", "Speciation", "TimeSeries", "SpatialProfile"]
