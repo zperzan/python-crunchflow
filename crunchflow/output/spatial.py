@@ -520,7 +520,7 @@ class SpatialProfile:
         else:
             raise ValueError("Could not determine the format of this file")
 
-        return data
+        return np.squeeze(data)
 
     def plot(self, var, time=None, output_time=None, plot_type="image", figsize=(12, 3), **kwargs):
         """Plot .tec output from a single time step.
