@@ -13,6 +13,8 @@ Some notable features include:
       `Condition`) and inherits from a shared `KeywordBlock` base class.
     - Input files can be generated from scratch, modified in memory, or parsed from existing
       files.
+    - The `ThermoDatabase` class provides a way to read and represent CrunchFlow thermodynamic
+      databases, including species and phases.
 
 Most blocks in a CrunchFlow input file correspond directly to attributes of the `InputFile`
 class. For example, the `FLOW` block is accessible via `InputFile.flow`, and the `RUNTIME`
@@ -29,7 +31,43 @@ Two notable exceptions to this structure are:
       `concentrations` dictionary of the `Condition` object, rather than as fixed attributes.
 """
 
+# Input-file API
 from .blocks import Condition, KeywordBlock
+
+# Aqueous database API
+from .databases.aqueous.database import AqueousDatabase
+from .databases.aqueous.database_entities import AqueousReaction
+
+# Thermodynamic database API
+from .databases.thermo.database import ThermoDatabase
+from .databases.thermo.database_entities import (
+    Exchange,
+    GasSpecies,
+    MineralKinetics,
+    Minerals,
+    PrimarySpecies,
+    SecondarySpecies,
+    SurfaceComplex,
+    SurfaceComplexParams,
+)
 from .inputfile import InputFile
 
-__all__ = ["InputFile", "KeywordBlock", "Condition"]
+__all__ = [
+    # Input files
+    "InputFile",
+    "KeywordBlock",
+    "Condition",
+    # Thermodynamic databases
+    "ThermoDatabase",
+    "PrimarySpecies",
+    "SecondarySpecies",
+    "GasSpecies",
+    "Minerals",
+    "SurfaceComplex",
+    "MineralKinetics",
+    "Exchange",
+    "SurfaceComplexParams",
+    # Aqueous databases
+    "AqueousDatabase",
+    "AqueousReaction",
+]

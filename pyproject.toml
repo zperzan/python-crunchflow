@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crunchflow"
-version = "2.0.7"
+version = "2.1.0"
 description = "A Python toolbox for working with the CrunchFlow reactive transport code"
 authors = ["Zach Perzan <zach.perzan@unlv.edu>"]
 license = "GPL-3.0-or-later"
@@ -72,6 +72,7 @@ unfixable = []
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D"]  # Ignore docstring errors in tests
 "docs/*" = ["D"]  # Ignore docstring errors in docs
+"crunchflow/input/databases/*" = ["N815", "N806"]  # Ignore logK case errors in database modules
 "__init__.py" = ["D"]  # Ignore docstring errors in __init__.py
 "crunchflow/output/main_output.py" = ["F821"]  # Ignore undefined name errors in main_output.py
 
