@@ -1,5 +1,6 @@
 import os
 import textwrap
+
 import pytest
 
 from crunchflow.input.databases.aqueous import AqueousDatabase
@@ -27,11 +28,11 @@ def test_read_example_db_smoke():
     assert len(db.kinetics) >= 24
 
     # Check FeIIoxidation reaction
-    assert 'FeIIoxidation' in db.reactions.keys()
-    assert db.reactions['FeIIoxidation'].name == 'FeIIoxidation'
-    assert db.reactions['FeIIoxidation'].type == 'catabolic'
-    assert db.reactions['FeIIoxidation'].logK == 8.4725
-    assert db.reactions['FeIIoxidation'].reaction.stoich == {'Fe+++': 1.0, 'Fe++': -1.0, "'O2(aq)'": -0.25, 'H+': -1.0}
+    assert "FeIIoxidation" in db.reactions.keys()
+    assert db.reactions["FeIIoxidation"].name == "FeIIoxidation"
+    assert db.reactions["FeIIoxidation"].type == "catabolic"
+    assert db.reactions["FeIIoxidation"].logK == 8.4725
+    assert db.reactions["FeIIoxidation"].reaction.stoich == {"Fe+++": 1.0, "Fe++": -1.0, "'O2(aq)'": -0.25, "H+": -1.0}
 
 
 def test_interleaved_blocks_parse(tmp_path):
@@ -80,12 +81,12 @@ def test_edit_stoichiometry_and_monod_and_write(tmp_path):
     db = AqueousDatabase.from_file(src)
 
     # Edit stoichiometry
-    db.reactions["Sulfate_reduction"].reaction.stoich['SO4--'] = -0.06625
+    db.reactions["Sulfate_reduction"].reaction.stoich["SO4--"] = -0.06625
     db.reactions["Sulfate_reduction"].reaction.stoich["'H2S(aq)'"] = 0.06625
 
     # Edit kinetics
     db.kinetics["Sulfate_reduction"].rate25C = 1e5
-    db.kinetics["Sulfate_reduction"].monod_terms['tot_Acetate'] = 0.0001
+    db.kinetics["Sulfate_reduction"].monod_terms["tot_Acetate"] = 0.0001
 
     # Write to file
     out = tmp_path / "edit-me.out.dbs"
@@ -94,16 +95,17 @@ def test_edit_stoichiometry_and_monod_and_write(tmp_path):
     # Read back in and check
     new_db = AqueousDatabase.from_file(str(out))
     correct_stoich = {
-        'SO4--': -0.06625,
-        'Acetate': -0.125,
-        'H+': -0.14,
+        "SO4--": -0.06625,
+        "Acetate": -0.125,
+        "H+": -0.14,
         "'NH3(aq)'": -0.0275,
-        'H2O': -0.07125,
-        'C5H7O2NSO4': 0.0275,
+        "H2O": -0.07125,
+        "C5H7O2NSO4": 0.0275,
         "'CO2(aq)'": 0.015,
-        'HCO3-': 0.0975,
-        "'H2S(aq)'": 0.06625}
-    correct_monod_terms = {'tot_Acetate': 0.0001, 'tot_SO4--': 0.001}
+        "HCO3-": 0.0975,
+        "'H2S(aq)'": 0.06625,
+    }
+    correct_monod_terms = {"tot_Acetate": 0.0001, "tot_SO4--": 0.001}
 
     assert new_db.reactions["Sulfate_reduction"].reaction.stoich == correct_stoich
     assert new_db.kinetics["Sulfate_reduction"].rate25C == 1e5
@@ -138,7 +140,8 @@ def test_round_trip_preserves_key_fields(tmp_path):
 
     # Compare essentials
     assert "CH4_SO4" in db2.reactions and "CH4_SO4" in db2.kinetics
-    k1 = db1.kinetics["CH4_SO4"]; k2 = db2.kinetics["CH4_SO4"]
+    k1 = db1.kinetics["CH4_SO4"]
+    k2 = db2.kinetics["CH4_SO4"]
     assert k2.reaction_type == k1.reaction_type
     assert k2.rate25C == pytest.approx(k1.rate25C)
     assert k2.monod_terms == k1.monod_terms
