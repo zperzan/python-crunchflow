@@ -111,8 +111,54 @@ class AqueousDatabase:
         except Exception as exc:
             raise ParseError(f"Failed to write aqueous database '{path}': {exc}") from exc
 
-    # ----------------------------- Parsing -------------------------------- #
+    def __str__(self) -> str:
+        """
+        Print a summary of the aqueous database contents.
+        Shows counts and previews up to a few &Aqueous and &AqueousKinetics entries.
+        """
+        lines = []
+        n_rxn = len(self.reactions)
+        n_kin = len(self.kinetics)
+        lines.append("AqueousDatabase")
+        lines.append(f"  reactions: {n_rxn}")
+        lines.append(f"  kinetics : {n_kin}")
 
+        # Preview up to 5 reactions
+        if n_rxn:
+            lines.append("  &Aqueous (reaction stoichiometry):")
+            for i, (name, aq) in enumerate(list(self.reactions.items())[:5], 1):
+                sto = aq.reaction.stoich if aq.reaction else {}
+                # summarize stoichiometry as "A -1.0, B 1.0, ..."
+                parts = [f"{sp} {coef:g}" for sp, coef in list(sto.items())[:4]]
+                more = "" if len(sto) <= 4 else " …"
+                lines.append(f"    {i}. {name}: " + (", ".join(parts) + more if parts else "(empty)"))
+
+            if n_rxn > 5:
+                lines.append(f"    … {n_rxn - 5} more reaction(s)")
+
+        # Preview up to 5 kinetics
+        if n_kin:
+            lines.append("  &AqueousKinetics (rate laws):")
+            for i, (name, ak) in enumerate(list(self.kinetics.items())[:5], 1):
+                rtype = ak.reaction_type
+                rate = ak.rate25C if ak.rate25C is not None else 0.0
+                # brief type-specific hint
+                if rtype in ("monod", "MonodBiomass"):
+                    mcount = len(ak.monod_terms or [])
+                    icount = len(ak.inhibition or {})
+                    extra = f"monod_terms={mcount}, inhibition={icount}"
+                else:
+                    extra = f"orders={len(ak.dependence or {})}"
+                pl = len(getattr(ak, "parallel_laws", []))
+                par = f", parallel_laws={pl}" if pl else ""
+                lines.append(f"    {i}. {name}: type={rtype}, rate25C={rate:g}, {extra}{par}")
+
+            if n_kin > 5:
+                lines.append(f"    … {n_kin - 5} more kinetics entry(ies)")
+
+        return "\n".join(lines)
+
+    # ----------------------------- Parsing -------------------------------- #
     def _parse_aqueous_block(self, lines: List[str], start_idx: int) -> int:
         """
         Parse a single &Aqueous block:

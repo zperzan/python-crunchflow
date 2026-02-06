@@ -153,6 +153,71 @@ class AqueousKinetics:
                 if "orders" in law:
                     raise ValidationError(f"parallel_laws[{idx}]: 'orders' not allowed for '{self.reaction_type}'.")
 
+    def __str__(self) -> str:
+        """
+        Render as an &AqueousKinetics block (single-law-first).
+        Note that parallel laws aren't printed here.
+        """
+        KEYW = 23
+
+        def w(key: str, val: str) -> str:
+            return f"  {key:<{KEYW}}= {val}"
+
+        def q(name: str) -> str:
+            s = str(name)
+            if len(s) >= 2 and (s[0] in "'\"" and s[-1] == s[0]):
+                s = s[1:-1]
+            return f"'{s}'"
+
+        out = ["&AqueousKinetics"]
+        out.append(w("label", self.label or "default"))
+
+        # Preserve MonodBiomass capitalization; 'monod' stays lowercase per examples
+        rtype = self.reaction_type if self.reaction_type != "monod" else "monod"
+        out.append(w("type", rtype))
+
+        rate = 0.0 if self.rate25C is None else float(self.rate25C)
+        out.append(w("rate25C", f"{rate:g}"))
+
+        if self.reaction_type in ("monod", "MonodBiomass"):
+            if self.monod_terms:
+                parts = [f"{q(sp)} {float(kh):g}" for sp, kh in self.monod_terms]
+                out.append(w("monod_terms", " ".join(parts)))
+            if self.inhibition:
+                parts = [f"{q(sp)} {float(val):g}" for sp, val in self.inhibition.items()]
+                out.append(w("inhibition", " ".join(parts)))
+            if self.biomass:
+                out.append(w("biomass", q(self.biomass)))
+            if self.bg is not None:
+                out.append(w("bq", f"{float(self.bg):g}"))
+            if self.chi is not None:
+                out.append(w("chi", f"{float(self.chi):g}"))
+            if self.direction is not None:
+                out.append(w("direction", f"{float(self.direction):g}"))
+            if self.use_metabolic_lag is not None:
+                out.append(w("UseMetabolicLag", ".true." if self.use_metabolic_lag else ".false."))
+            if self.lag_time is not None:
+                out.append(w("LagTime", f"{float(self.lag_time):g}"))
+            if self.ramp_time is not None:
+                # Many example files use 'Ramptime' spelling
+                out.append(w("Ramptime", f"{float(self.ramp_time):g}"))
+            if self.threshold_concentration is not None:
+                out.append(w("ThresholdConcentration", f"{float(self.threshold_concentration):g}"))
+            if self.substrate_for_lag:
+                out.append(w("SubstrateForLag", str(self.substrate_for_lag)))
+        else:
+            # tst / irreversible → species orders under 'dependence'
+            if self.dependence:
+                parts = [f"'{sp}'  {float(exp):g}" for sp, exp in self.dependence.items()]
+                out.append(w("dependence", " ".join(parts)))
+
+        # (Optional) hint about parallel laws without emitting them
+        if self.parallel_laws:
+            out.append("  !! note: additional parallel laws exist but are not printed here")
+
+        out.append("/")
+        return "\n".join(out)
+
 
 # ----------------------------------------------------------------------------- #
 # Thermodynamic database containers
