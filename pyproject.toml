@@ -1,14 +1,13 @@
 [project]
 name = "crunchflow"
-version = "2.1.1"
+version = "2.1.2"
 description = "A Python toolbox for working with the CrunchFlow reactive transport code"
 authors = [{ name = "Zach Perzan", email = "zach.perzan@unlv.edu" }]
-requires-python = ">=3.9, <4.0"
+requires-python = ">=3.10, <4.0"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
